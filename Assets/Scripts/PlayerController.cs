@@ -7,49 +7,58 @@ using Util;
 
 public class PlayerController : MonoBehaviour
 {
-    public float jumpPower;
-    public GameController gameController;
+	public float jumpPower;
+	public GameController gameController;
 
-    private Rigidbody rigidBody;
+	private Rigidbody rigidBody;
 
-    public bool isGrounded = true;
+	//private BoxCollider boxCollider;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        rigidBody = GetComponent<Rigidbody>();
-    }
+	public bool isGrounded = true;
 
-    // Update is called once per frame
-    void Update()
-    {
-        // Jumps when space is pressed
-        if (isGrounded && Input.GetAxis("Jump") > 0)
-        {
-            rigidBody.velocity = new Vector3(0.0f, jumpPower, 0.0f);
-        }
-    }
+	float top;
 
-    // Detects collision for ground
-    private void OnCollisionEnter(Collision col)
-    {
-        if (col.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = true;
-        }
-    }
+	// Start is called before the first frame update
+	void Start()
+	{
+		rigidBody = GetComponent<Rigidbody>();
+		var boxCollider = GetComponent<BoxCollider>();
+		top = boxCollider.extents.y;
+	}
 
-    private void OnCollisionExit(Collision col)
-    {
-        isGrounded = false;
-    }
+	// Update is called once per frame
+	void Update()
+	{
+		// Jumps when space is pressed
+		if (isGrounded && Input.GetAxis("Jump") > 0)
+		{
+			rigidBody.velocity = new Vector3(0.0f, jumpPower, 0.0f);
+		}
+	}
 
-    // Detects if player hits obstacle
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.CompareTag("Obstacle"))
-        {
-            gameController.Initialize("Over");
-        }
-    }
+	// Detects collision for ground
+	private void OnCollisionEnter(Collision col)
+	{
+		if (col.gameObject.CompareTag("Ground"))
+		{
+			isGrounded = true;
+		}
+	}
+
+	private void OnCollisionExit(Collision col)
+	{
+		isGrounded = false;
+	}
+
+	// Detects if player hits obstacle
+	void OnTriggerEnter(Collider other)
+	{
+		if (other.gameObject.CompareTag("Obstacle"))
+			gameController.Initialize("Over");
+	}
+
+	Vector2 getBottomMiddle()
+	{
+		return new Vector2(transform.position.x, transform.position.y - top);
+	}
 }

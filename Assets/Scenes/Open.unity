@@ -532,7 +532,7 @@ PrefabInstance:
       objectReference: {fileID: 914442194}
     - target: {fileID: -1181635196971919046, guid: b43b669b3f2c34cec8b2ec2f921e6d35, type: 3}
       propertyPath: jumpPower
-      value: 6
+      value: 4.1
       objectReference: {fileID: 0}
     - target: {fileID: 182500, guid: b43b669b3f2c34cec8b2ec2f921e6d35, type: 3}
       propertyPath: m_Name
@@ -1313,6 +1313,7 @@ GameObject:
   m_Component:
   - component: {fileID: 914442193}
   - component: {fileID: 914442194}
+  - component: {fileID: 914442195}
   m_Layer: 0
   m_Name: Game Controller
   m_TagString: Untagged
@@ -1356,12 +1357,29 @@ MonoBehaviour:
     decoration2: {fileID: 188342, guid: e8bb12f79e968364fbfc4ab26d73121e, type: 3}
     decoration3: {fileID: 122152, guid: 40b1030f3b2e8cb42a584be9bbb07672, type: 3}
     sky: {fileID: 2100000, guid: 1001bc62adaa0451cb40206853391b06, type: 2}
-  obstacle: {fileID: 122152, guid: 40b1030f3b2e8cb42a584be9bbb07672, type: 3}
+  allowSpeedUp: 0
   scoreLabel: {fileID: 264936666}
   title: {fileID: 943372021}
   startButton: {fileID: 75165042}
   gameOver: {fileID: 228138210}
   restartButton: {fileID: 117517079}
+--- !u!114 &914442195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 914442192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06f1198fe18256e449ab164af9d176a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mObstaclePrefabs:
+  - {fileID: 118068, guid: e6bf30ac90cb47546a77a048ed1fe4ba, type: 3}
+  - {fileID: 122152, guid: 40b1030f3b2e8cb42a584be9bbb07672, type: 3}
+  mMinSpawnInterval: 1
+  mMaxSpawnInterval: 4
 --- !u!1 &943372021
 GameObject:
   m_ObjectHideFlags: 0
