@@ -13,13 +13,23 @@ public class ObstacleSpawner : MonoBehaviour
 
 	Vector3 mSpawnPoint;
 
-	List<Transform> mObstacles = new List<Transform> { };
+	List<GlobalBounds> mObstacles = new List<GlobalBounds> { };
 
 	GameController mGameController;
+	//NeuralNetworkManager mNeuralNetManager;
+	
+	// closest obstacle to player's right
+	public GlobalBounds mClosestObstacle;
+
+	// distance
+	float mObstacleExtentX;
+	float mPlayerMinX;
 
 	void Start()
 	{
 		mGameController = FindObjectOfType<GameController>();
+		//mNeuralNetManager = FindObjectOfType<NeuralNetworkManager>();
+
 
 		// set resetPosition relative to camera's bounds
 		var x = Camera.main.orthographicSize * Camera.main.aspect;
@@ -29,10 +39,10 @@ public class ObstacleSpawner : MonoBehaviour
 	void Update()
 	{
 		// find obstacles that have left the screen and ...
-		var toDespawn = new List<Transform> { };
+		var toDespawn = new List<GlobalBounds> { };
 		foreach (var obstacle in mObstacles)
 		{
-			if (obstacle.position.x < -mSpawnPoint.x)
+			if (obstacle.Right() < -mSpawnPoint.x)
 			{
 				toDespawn.Add(obstacle);
 			}
@@ -49,6 +59,23 @@ public class ObstacleSpawner : MonoBehaviour
 		{
 			mNextSpawnTime = Time.time + Random.Range(mMinSpawnInterval, mMaxSpawnInterval);
 			SpawnRandom();
+		}
+	}
+
+	// finds the closest Obstacle to player 
+	void UpdateClosestToPlayer()
+	{
+		var x = mClosestObstacle.Right();
+
+		if (x < mPlayerMinX)
+		{
+			// assuming the first obstacle with x > player's
+			// is the next closest
+			foreach (var obstacle in mObstacles)
+			{
+				if (obstacle.Right() > mPlayerMinX)
+					mClosestObstacle = obstacle;
+			}
 		}
 	}
 
@@ -69,17 +96,14 @@ public class ObstacleSpawner : MonoBehaviour
 		var instance = Instantiate(mObstaclePrefabs[i], mSpawnPoint, Quaternion.identity);
 		// ... with an obstacle controller ...
 		instance.tag = "Obstacle";
-		var ctrlr = instance.GetComponent<ObstacleController>();
-		ctrlr.gameController = mGameController;
-		if (ctrlr == null)
-			instance.AddComponent<ObstacleController>();
-		// .. and a collision box, ...
-		var cb = instance.GetComponent<BoxCollider>();
-		if (cb == null)
-			cb = instance.AddComponent<BoxCollider>();
-		// ... make it a trigger, ...
-		cb.isTrigger = true;
-		// ... and finally add its transform to our list
-		mObstacles.Add(instance.transform);
+		instance.GetOrAddComponent<ObstacleController>();
+		// ... a collision box, ...
+		var bc = instance.GetOrAddComponent<BoxCollider>();
+		// ... that's a trigger, ...
+		bc.isTrigger = true;
+		// ... and GlobalBounds, ...
+		var gb = instance.GetOrAddComponent<GlobalBounds>();
+		// ... and finally add its GlobalBound to our list
+		mObstacles.Add(gb);
 	}
 }

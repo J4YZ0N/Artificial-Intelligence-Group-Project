@@ -12,18 +12,15 @@ public class PlayerController : MonoBehaviour
 
 	private Rigidbody rigidBody;
 
-	//private BoxCollider boxCollider;
-
 	public bool isGrounded = true;
 
-	float top;
+	GlobalBounds globalBounds;
 
 	// Start is called before the first frame update
 	void Start()
 	{
 		rigidBody = GetComponent<Rigidbody>();
-		var boxCollider = GetComponent<BoxCollider>();
-		top = boxCollider.extents.y;
+		globalBounds = GetComponent<GlobalBounds>();
 	}
 
 	// Update is called once per frame
@@ -57,8 +54,8 @@ public class PlayerController : MonoBehaviour
 			gameController.Initialize("Over");
 	}
 
-	Vector2 getBottomMiddle()
+	Vector2 GetBottomLeft()
 	{
-		return new Vector2(transform.position.x, transform.position.y - top);
+		return globalBounds.BottomLeft();
 	}
 }

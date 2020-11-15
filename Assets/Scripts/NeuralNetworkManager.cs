@@ -73,36 +73,93 @@ public class NeuralNetwork
 
 public class NeuralNetworkManager : MonoBehaviour
 {
+	public List<GameObject> mPlayerPrefabs;
+
+	// position for players to spawn at
+	public Vector3 mSpawnPosition = new Vector3(-3.0f, 0, 0);
+
+	// amount of neural networks to create
+	const int mCount = 10;
+
+	// list of AI players
+	List<AI> mAIs;
+
+	// constant minimum x bound of player in global space
+	// used when trying to find or adjust neural network inputs
+	public float mPlayerMinX;
+
+	bool runTest = false;
+
+	GameController sGameController;
+
 	void Start()
 	{
-		int count = 1;
-		NeuralNetwork.addNetworks(count);
-		for (int i = 0; i < count; ++i)
+		if (runTest)
 		{
-			for (int j = 0; j < 100; ++j)
-			{
-				NeuralNetwork.train(0, new InputData(1.0f, 1.0f, 0.0f, 0.0f), new OutputData(1.0f, 0.0f));
-				NeuralNetwork.train(0, new InputData(0.0f, 1.0f, 1.0f, 0.0f), new OutputData(1.0f, 0.0f));
-				NeuralNetwork.train(0, new InputData(1.0f, 0.0f, 1.0f, 0.0f), new OutputData(1.0f, 0.0f));
-				NeuralNetwork.train(0, new InputData(1.0f, 1.0f, 1.0f, 0.0f), new OutputData(1.0f, 0.0f));
-				NeuralNetwork.train(0, new InputData(1.0f, 0.0f, 0.0f, 0.0f), new OutputData(0.0f, 0.0f));
-				NeuralNetwork.train(0, new InputData(0.0f, 1.0f, 0.0f, 0.0f), new OutputData(0.0f, 0.0f));
-				NeuralNetwork.train(0, new InputData(0.0f, 0.0f, 1.0f, 0.0f), new OutputData(0.0f, 0.0f));
-				NeuralNetwork.train(0, new InputData(0.0f, 0.0f, 0.0f, 0.0f), new OutputData(0.0f, 0.0f));
-			}
+			PredictionTest();
+			enabled = false;
+			return;
 		}
 
-		for (int i = 0; i < count; ++i)
+		sGameController = FindObjectOfType<GameController>();
+
+		// add neural networks
+		NeuralNetwork.addNetworks(mCount);
+
+		// add AI objects
+		for (int i = 0; i < mCount; ++i)
 		{
-			var guess = NeuralNetwork.guess(i, new InputData(1.0f, 1.0f, 0.0f, 0.0f));
-			Debug.Log(guess.x);
-			Debug.Log(guess.y);
-			guess = NeuralNetwork.guess(i, new InputData(0.0f, 1.0f, 1.0f, 0.0f));
-			Debug.Log(guess.x);
-			Debug.Log(guess.y);
-			guess = NeuralNetwork.guess(i, new InputData(1.0f, 0.0f, 1.0f, 0.0f));
-			Debug.Log(guess.x);
-			Debug.Log(guess.y);
+			var r = Random.Range(0, mPlayerPrefabs.Count);
+			var instance = Instantiate(mPlayerPrefabs[r], mSpawnPosition, Quaternion.identity);
+			var ai = instance.GetComponent<AI>();
+			if (ai == null)
+				ai = instance.AddComponent<AI>();
+
+			// give AI an index to a neural network
+			ai.mIndex = i;
+			ai.sGameController = sGameController;
 		}
+	}
+
+	// 
+	void SetPlayerMinX()
+	{
+		float maxOffset = 0;
+		foreach (var player in mPlayerPrefabs)
+		{
+			maxOffset = Mathf.Max(maxOffset,
+				player.GetComponent<BoxCollider>().bounds.extents.x);
+		}
+		mPlayerMinX = mSpawnPosition.x - maxOffset;
+	}
+
+	void PredictionTest()
+	{
+		NeuralNetwork.addNetworks(1);
+
+		for (int j = 0; j < 100; ++j)
+		{
+			NeuralNetwork.train(0, new InputData(1.0f, 1.0f, 0.0f, 0.0f), new OutputData(1.0f, 0.0f));
+			NeuralNetwork.train(0, new InputData(0.0f, 1.0f, 1.0f, 0.0f), new OutputData(1.0f, 0.0f));
+			NeuralNetwork.train(0, new InputData(1.0f, 0.0f, 1.0f, 0.0f), new OutputData(1.0f, 0.0f));
+			NeuralNetwork.train(0, new InputData(1.0f, 1.0f, 1.0f, 0.0f), new OutputData(1.0f, 0.0f));
+			NeuralNetwork.train(0, new InputData(1.0f, 0.0f, 0.0f, 0.0f), new OutputData(0.0f, 0.0f));
+			NeuralNetwork.train(0, new InputData(0.0f, 1.0f, 0.0f, 0.0f), new OutputData(0.0f, 0.0f));
+			NeuralNetwork.train(0, new InputData(0.0f, 0.0f, 1.0f, 0.0f), new OutputData(0.0f, 0.0f));
+			NeuralNetwork.train(0, new InputData(0.0f, 0.0f, 0.0f, 0.0f), new OutputData(0.0f, 0.0f));
+		}
+
+		var guess = NeuralNetwork.guess(0,
+			new InputData(1.0f, 1.0f, 0.0f, 0.0f));
+		Debug.Log(guess.x);
+		Debug.Log(guess.y);
+		guess = NeuralNetwork.guess(0,
+			new InputData(0.0f, 1.0f, 1.0f, 0.0f));
+		Debug.Log(guess.x);
+		Debug.Log(guess.y);
+		guess = NeuralNetwork.guess(0,
+			new InputData(1.0f, 0.0f, 1.0f, 0.0f));
+		Debug.Log(guess.x);
+		Debug.Log(guess.y);
 	}
 }

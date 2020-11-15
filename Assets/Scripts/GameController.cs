@@ -19,7 +19,7 @@ public class GameController : MonoBehaviour
 
 	// Variables to create obstacles
 	//public GameObject obstacle;
-	private GameObject instantiation;
+	//private GameObject instantiation;
 	//public List<GameObject> obstacles;
 	private float speed = 2.0f;
 
@@ -71,6 +71,9 @@ public class GameController : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
 	{
+		// ignore collisions between GameObjects on the Player layer
+		Physics.IgnoreLayerCollision(8, 8);
+
 		obstacleSpawner = GetComponent<ObstacleSpawner>();
 		if (obstacleSpawner == null)
 		{
@@ -89,15 +92,18 @@ public class GameController : MonoBehaviour
 		{
 			// Title screen
 			case "Open":
-				InitializeTitleScreen();
+				StartTitleScreen();
 				break;
 			// Gameplay screen
 			case "Play":
-				InitializePlay();
+				StartPlay();
 				break;
 			// Game over screen
 			case "Over":
-				InitializeGameOver();
+				StartGameOver();
+				break;
+			default:
+				Debug.Log("mode " + mode + " defaulted");
 				break;
 		}
 
@@ -111,7 +117,7 @@ public class GameController : MonoBehaviour
 	}
 
 
-	void InitializeTitleScreen()
+	void StartTitleScreen()
 	{
 		scoreLabel.enabled = false;
 		gameOver.SetActive(false);
@@ -120,7 +126,7 @@ public class GameController : MonoBehaviour
 		obstacleSpawner.enabled = false;
 	}
 
-	void InitializePlay()
+	void StartPlay()
 	{
 		scoreLabel.enabled = true;
 		title.SetActive(false);
@@ -138,7 +144,7 @@ public class GameController : MonoBehaviour
 		obstacleSpawner.enabled = true;
 	}
 
-	void InitializeGameOver()
+	void StartGameOver()
 	{
 		title.SetActive(false);
 		startButton.SetActive(false);
