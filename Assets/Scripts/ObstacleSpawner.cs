@@ -9,7 +9,8 @@ public class ObstacleSpawner : MonoBehaviour
 	public float mMinSpawnInterval = 1.0f;
 	public float mMaxSpawnInterval = 4.0f;
 
-	float mNextSpawnTime = 0;
+	const float mStartSpawnTime = -10;
+	float mNextSpawnTime = mStartSpawnTime;
 
 	Vector3 mSpawnPoint;
 
@@ -19,7 +20,7 @@ public class ObstacleSpawner : MonoBehaviour
 	//NeuralNetworkManager mNeuralNetManager;
 	
 	// closest obstacle to player's right
-	public GlobalBounds mClosestObstacle;
+	GlobalBounds mClosestObstacle;
 
 	// distance
 	float mObstacleExtentX;
@@ -34,6 +35,9 @@ public class ObstacleSpawner : MonoBehaviour
 		// set resetPosition relative to camera's bounds
 		var x = Camera.main.orthographicSize * Camera.main.aspect;
 		mSpawnPoint = new Vector3(x, -0.5f, 0);
+
+		SpawnRandom();
+		mClosestObstacle = mObstacles[0];
 	}
 
 	void Update()
@@ -54,17 +58,27 @@ public class ObstacleSpawner : MonoBehaviour
 			mObstacles.Remove(obstacle);
 		}
 
+		SpawnRandom();
+
+		UpdateClosestToPlayer();
+	}
+
+	void SpawnRandom()
+	{
 		// instantiate new objects at a randomized time interval
 		if (Time.time > mNextSpawnTime)
 		{
 			mNextSpawnTime = Time.time + Random.Range(mMinSpawnInterval, mMaxSpawnInterval);
-			SpawnRandom();
+			DoSpawnRandom();
 		}
 	}
 
 	// finds the closest Obstacle to player 
 	void UpdateClosestToPlayer()
 	{
+		if (mClosestObstacle == null)
+			mClosestObstacle = mObstacles[0];
+
 		var x = mClosestObstacle.Right();
 
 		if (x < mPlayerMinX)
@@ -79,6 +93,11 @@ public class ObstacleSpawner : MonoBehaviour
 		}
 	}
 
+	public GlobalBounds ClosestObstacleToPlayer()
+	{
+		return mClosestObstacle;
+	}
+
 	public void DestroyAllObstacles()
 	{
 		foreach (var obstacle in mObstacles)
@@ -86,9 +105,10 @@ public class ObstacleSpawner : MonoBehaviour
 			Destroy(obstacle.gameObject);
 		}
 		mObstacles.Clear();
+		mNextSpawnTime = mStartSpawnTime;
 	}
 
-	void SpawnRandom()
+	void DoSpawnRandom()
 	{
 		// select a random prefab, ...
 		var i = Random.Range(0, mObstaclePrefabs.Count);

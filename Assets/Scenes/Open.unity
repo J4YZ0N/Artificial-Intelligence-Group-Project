@@ -694,7 +694,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 863138104}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &264936664
 GameObject:
@@ -1196,53 +1196,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 477590, guid: b63d43bd4e6feeb498069e50954cb50a, type: 3}
   m_PrefabInstance: {fileID: 738511327}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &801209680
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 801209682}
-  - component: {fileID: 801209681}
-  m_Layer: 0
-  m_Name: NeuralNetworkManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &801209681
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 801209680}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b332e734e3e05bc45ae1914955c10122, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mPlayerPrefabs:
-  - {fileID: 2143011516800050699, guid: 7f6995fe97456b64a8963d8da41de925, type: 3}
-  mSpawnPosition: {x: -3, y: 0, z: 0}
-  mPlayerMinX: 0
---- !u!4 &801209682
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 801209680}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 863138104}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &863138103
 GameObject:
   m_ObjectHideFlags: 0
@@ -1271,7 +1224,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 914442193}
-  - {fileID: 801209682}
   - {fileID: 234582528}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -1353,6 +1305,7 @@ GameObject:
   - component: {fileID: 914442193}
   - component: {fileID: 914442194}
   - component: {fileID: 914442195}
+  - component: {fileID: 914442196}
   m_Layer: 0
   m_Name: Game Controller
   m_TagString: Untagged
@@ -1419,7 +1372,21 @@ MonoBehaviour:
   - {fileID: 122152, guid: 40b1030f3b2e8cb42a584be9bbb07672, type: 3}
   mMinSpawnInterval: 1
   mMaxSpawnInterval: 4
-  mClosestObstacle: {fileID: 0}
+--- !u!114 &914442196
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 914442192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b332e734e3e05bc45ae1914955c10122, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mPlayerPrefabs:
+  - {fileID: 2143011516800050699, guid: 7f6995fe97456b64a8963d8da41de925, type: 3}
+  mSpawnPosition: {x: -3, y: 0, z: 0}
 --- !u!1 &943372021
 GameObject:
   m_ObjectHideFlags: 0

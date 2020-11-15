@@ -82,15 +82,17 @@ public class NeuralNetworkManager : MonoBehaviour
 	const int mCount = 10;
 
 	// list of AI players
-	List<AI> mAIs;
+	List<AI> mAIs = new List<AI>();
 
 	// constant minimum x bound of player in global space
 	// used when trying to find or adjust neural network inputs
+	[System.NonSerialized]
 	public float mPlayerMinX;
 
 	bool runTest = false;
 
 	GameController sGameController;
+	ObstacleSpawner sObstacleSpawner;
 
 	void Start()
 	{
@@ -101,23 +103,108 @@ public class NeuralNetworkManager : MonoBehaviour
 			return;
 		}
 
-		sGameController = FindObjectOfType<GameController>();
+		sGameController = GetComponent<GameController>();
+		sObstacleSpawner = GetComponent<ObstacleSpawner>();
 
 		// add neural networks
 		NeuralNetwork.addNetworks(mCount);
 
-		// add AI objects
+		// add an AI for each neural network
+		AddAIs();
+
+		SetPlayerMinX();
+	}
+
+	void AddAIs()
+	{
 		for (int i = 0; i < mCount; ++i)
 		{
 			var r = Random.Range(0, mPlayerPrefabs.Count);
 			var instance = Instantiate(mPlayerPrefabs[r], mSpawnPosition, Quaternion.identity);
-			var ai = instance.GetComponent<AI>();
-			if (ai == null)
-				ai = instance.AddComponent<AI>();
+			instance.GetOrAddComponent<BoxCollider>();
+			instance.GetOrAddComponent<GlobalBounds>();
 
+			var ai = instance.GetOrAddComponent<AI>();
 			// give AI an index to a neural network
 			ai.mIndex = i;
-			ai.sGameController = sGameController;
+			//ai.sGameController = sGameController;
+
+			mAIs.Add(ai);
+		}
+	}
+
+	void Update()
+	{
+		if (mAIs.Count == 0)
+			AddAIs();
+		CleanupDeadAIs();
+		SetJumpPredictions();
+		if (mAIs.Count == 0)
+		{
+			sGameController.Initialize("Over");
+			return;
+		}
+	}
+
+	void CleanupDeadAIs()
+	{
+		List<AI> toDestroy = new List<AI>();
+
+		foreach (var ai in mAIs)
+		{
+			if (ai.mTimeOfDeath > 0)
+			{
+				toDestroy.Add(ai);
+			}
+		}
+
+		// if all AI are dead, find the best
+		// fitness and set them all to that
+		// value
+		if (toDestroy.Count == mAIs.Count)
+		{
+			float bestValue = fitness(0);
+			int bestIndex = mAIs[0].mIndex;
+			for (int i = 1; i < mAIs.Count; ++i)
+			{
+				var value = fitness(i);
+				if (value > bestValue)
+				{
+					bestValue = value;
+					bestIndex = mAIs[i].mIndex;
+				}
+			}
+
+			NeuralNetwork.replaceOthers(bestIndex);
+		}
+
+		foreach (var ai in toDestroy)
+		{
+			mAIs.Remove(ai);
+			Destroy(ai.gameObject);
+		}
+	}
+
+	// fitness of AI in mAIs[i]
+	// note: NOT THE SAME AS NEURAL NETWORK INDEX!
+	float fitness(int i)
+	{
+		float dist = Vector2.Dot(mAIs[0].BottomLeft(),
+			sObstacleSpawner.ClosestObstacleToPlayer().TopRight());
+		return mAIs[0].mTimeOfDeath - dist;
+	}
+
+	//
+	void SetJumpPredictions()
+	{
+		var topRight = sObstacleSpawner.ClosestObstacleToPlayer()
+			.TopRight();
+		// todo: get values for input data
+		var inputs = new InputData( topRight.x, topRight.y, 0, 0 );
+		foreach (var ai in mAIs)
+		{
+			var outputs = NeuralNetwork.guess(ai.mIndex, inputs);
+			ai.mShouldJump = outputs.x > outputs.y;
 		}
 	}
 

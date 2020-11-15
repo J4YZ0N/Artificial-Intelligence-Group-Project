@@ -7,15 +7,34 @@ public class AI : MonoBehaviour
 	// index into the plugin's array of neural networks
 	[System.NonSerialized]
 	public int mIndex;
-	[System.NonSerialized]
-	public GameController sGameController;
+	// shared game controller to change game mode
+	// todo: should be in neural network manager instead
+	//		to restart only when all AI have died
+	/*[System.NonSerialized]
+	public GameController sGameController;*/
 
-	bool isGrounded = false;
+	bool mIsGrounded = false;
+
+	// value updated by nn manager
+	[System.NonSerialized]
+	public bool mShouldJump = false;
+
+	const float mJumpPower = 4.5f;
 
 	GlobalBounds mGlobalBounds;
 	Rigidbody mRigidBody;
 
-	ObstacleSpawner sObstacleSpawner;
+	[System.NonSerialized]
+	public float mTimeOfDeath = -10;
+
+	//ObstacleSpawner sObstacleSpawner;
+	
+	// keep a record of actions in case they lead to AI's
+	// death. hopefully can be used to retrain AI.
+	const int mRecordCount = 4; // must be a power of 2
+	[System.NonSerialized]
+	public bool[] mActionRecord = new bool[mRecordCount];
+	int mNextRecordIndex = 0;
 
 	void Start()
 	{
@@ -25,30 +44,47 @@ public class AI : MonoBehaviour
 
 	void Update()
 	{
-		// todo: grab 
+		// todo: grab prediction? or do that in nn manager?
+		//	probably should do it in nn manager since inputs
+		//	should be the same for every AI (or should they?)
+
+		if (mShouldJump)
+			Jump();
+
+		// add result to the record
+		mActionRecord[mNextRecordIndex] = mShouldJump;
+		// wraps index if mRecordCount is a power of 2
+		mNextRecordIndex = (mNextRecordIndex + 1) % mRecordCount;
+	}
+
+	void Jump()
+	{
+		if (mIsGrounded)
+		{
+			mRigidBody.velocity = new Vector3(0.0f, mJumpPower, 0.0f);
+		}
 	}
 
 	private void OnCollisionEnter(Collision col)
 	{
 		if (col.gameObject.CompareTag("Ground"))
-		{
-			isGrounded = true;
-		}
+			mIsGrounded = true;
 	}
 
 	private void OnCollisionExit(Collision col)
 	{
-		isGrounded = false;
+		if (col.gameObject.CompareTag("Ground"))
+			mIsGrounded = false;
 	}
 
 	// Detects if player hits obstacle
 	void OnTriggerEnter(Collider other)
 	{
 		if (other.gameObject.CompareTag("Obstacle"))
-			sGameController.Initialize("Over");
+			mTimeOfDeath = Time.time;
 	}
 
-	Vector2 GetBottomLeft()
+	public Vector2 BottomLeft()
 	{
 		return mGlobalBounds.BottomLeft();
 	}

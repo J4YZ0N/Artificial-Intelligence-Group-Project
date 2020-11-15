@@ -67,6 +67,7 @@ public class GameController : MonoBehaviour
 	}
 
 	ObstacleSpawner obstacleSpawner;
+	NeuralNetworkManager neuralNetworkManager;
 
 	// Start is called before the first frame update
 	void Start()
@@ -75,6 +76,8 @@ public class GameController : MonoBehaviour
 		Physics.IgnoreLayerCollision(8, 8);
 
 		obstacleSpawner = GetComponent<ObstacleSpawner>();
+		neuralNetworkManager = GetComponent<NeuralNetworkManager>();
+
 		if (obstacleSpawner == null)
 		{
 			Debug.Log("GameController also needs an ObstacleSpawner component");
@@ -92,15 +95,15 @@ public class GameController : MonoBehaviour
 		{
 			// Title screen
 			case "Open":
-				StartTitleScreen();
+				BeginTitleScreen();
 				break;
 			// Gameplay screen
 			case "Play":
-				StartPlay();
+				BeginPlay();
 				break;
 			// Game over screen
 			case "Over":
-				StartGameOver();
+				BeginGameOver();
 				break;
 			default:
 				Debug.Log("mode " + mode + " defaulted");
@@ -117,16 +120,17 @@ public class GameController : MonoBehaviour
 	}
 
 
-	void StartTitleScreen()
+	void BeginTitleScreen()
 	{
 		scoreLabel.enabled = false;
 		gameOver.SetActive(false);
 		restartButton.SetActive(false);
 
 		obstacleSpawner.enabled = false;
+		neuralNetworkManager.enabled = false;
 	}
 
-	void StartPlay()
+	void BeginPlay()
 	{
 		scoreLabel.enabled = true;
 		title.SetActive(false);
@@ -141,10 +145,12 @@ public class GameController : MonoBehaviour
 
 		/*GameObject.Destroy(instantiation);
 		instantiation = Instantiate(obstacle);*/
+
 		obstacleSpawner.enabled = true;
+		neuralNetworkManager.enabled = true;
 	}
 
-	void StartGameOver()
+	void BeginGameOver()
 	{
 		title.SetActive(false);
 		startButton.SetActive(false);
@@ -158,6 +164,7 @@ public class GameController : MonoBehaviour
 
 		obstacleSpawner.DestroyAllObstacles();
 		obstacleSpawner.enabled = false;
+		neuralNetworkManager.enabled = false;
 	}
 
 	// Increases speed every 10 points
