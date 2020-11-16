@@ -202,21 +202,27 @@ public class NeuralNetworkManager : MonoBehaviour
 	//
 	void SetJumpPredictions()
 	{
-		var distance = sObstacleSpawner
+		/*var distance = sObstacleSpawner
 			.ClosestObstacleToPlayer().TopRight() - new Vector2(
 				mSpawnPosition.x, mSpawnPosition.y) * 0.5f;
-		distance.Normalize();
-		
+		distance.Normalize();*/
+
+		var obstacleDist = Utilities.Map(
+			sObstacleSpawner.ClosestObstacleToPlayer().Right(),
+			mPlayerMinX, sObstacleSpawner.spawnPoint.x, 0, 1);
+		var obstacleHeight = sObstacleSpawner.ClosestObstacleToPlayer().Top() / 5;
+
 		// todo: get values for input data
 		foreach (var ai in mAIs)
 		{
 			if (!ai.isActiveAndEnabled)
 				continue;
-			var inputs = new InputData(
+			var inputs = new InputData(obstacleDist, obstacleHeight, ai.mGlobalBounds.Bottom() / 5, 0);
+			/*var inputs = new InputData(
 				distance.x / sObstacleSpawner.spawnPoint.x,
 				distance.y / 5.0f,
 				ai.transform.position.y / 5.0f,
-				0);
+				0);*/
 			var outputs = NeuralNetwork.guess(ai.mIndex, inputs);
 			ai.mShouldJump = outputs.x > outputs.y;
 		}

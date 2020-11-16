@@ -21,7 +21,8 @@ public class AI : MonoBehaviour
 
 	const float mJumpPower = 4.5f;
 
-	GlobalBounds mGlobalBounds;
+	[System.NonSerialized]
+	public GlobalBounds mGlobalBounds;
 	Rigidbody mRigidBody;
 
 	[System.NonSerialized]
