@@ -25,21 +25,32 @@ public class AI : MonoBehaviour
 	Rigidbody mRigidBody;
 
 	[System.NonSerialized]
-	public float mTimeOfDeath = -10;
+	public float mTimeOfDeath = -1;
+
+	Vector3 mStartPosition;
 
 	//ObstacleSpawner sObstacleSpawner;
 	
 	// keep a record of actions in case they lead to AI's
 	// death. hopefully can be used to retrain AI.
-	const int mRecordCount = 4; // must be a power of 2
+	/*const int mRecordCount = 4; // must be a power of 2
 	[System.NonSerialized]
 	public bool[] mActionRecord = new bool[mRecordCount];
-	int mNextRecordIndex = 0;
+	int mNextRecordIndex = 0;*/
 
 	void Start()
 	{
+		mStartPosition = transform.position;
 		mRigidBody = GetComponent<Rigidbody>();
 		mGlobalBounds = GetComponent<GlobalBounds>();
+	}
+
+	public void Restart()
+	{
+		transform.position = mStartPosition;
+		mTimeOfDeath = -1;
+		mShouldJump = false;
+		mIsGrounded = false;
 	}
 
 	void Update()
@@ -52,16 +63,17 @@ public class AI : MonoBehaviour
 			Jump();
 
 		// add result to the record
-		mActionRecord[mNextRecordIndex] = mShouldJump;
+		/*mActionRecord[mNextRecordIndex] = mShouldJump;
 		// wraps index if mRecordCount is a power of 2
-		mNextRecordIndex = (mNextRecordIndex + 1) % mRecordCount;
+		mNextRecordIndex = (mNextRecordIndex + 1) % mRecordCount;*/
 	}
 
 	void Jump()
 	{
 		if (mIsGrounded)
 		{
-			mRigidBody.velocity = new Vector3(0.0f, mJumpPower, 0.0f);
+			mRigidBody.velocity = new Vector3(
+				0.0f, mJumpPower, 0.0f);
 		}
 	}
 

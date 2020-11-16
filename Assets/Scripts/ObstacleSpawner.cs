@@ -28,47 +28,40 @@ public class ObstacleSpawner : MonoBehaviour
 
 	void Start()
 	{
-		mGameController = FindObjectOfType<GameController>();
-		//mNeuralNetManager = FindObjectOfType<NeuralNetworkManager>();
+		mGameController = GetComponent<GameController>();
+		mPlayerMinX = GetComponent<NeuralNetworkManager>().mPlayerMinX;
 
 
 		// set resetPosition relative to camera's bounds
 		var x = Camera.main.orthographicSize * Camera.main.aspect;
-		mSpawnPoint = new Vector3(x, -0.5f, 0);
+		mSpawnPoint = new Vector3(x, 0, 0);
 
-		SpawnRandom();
+		DoSpawnRandom();
 		mClosestObstacle = mObstacles[0];
 	}
 
 	void Update()
 	{
-		// find obstacles that have left the screen and ...
-		var toDespawn = new List<GlobalBounds> { };
-		foreach (var obstacle in mObstacles)
+		// destroy obstacles that have left the screen
+		for (int i = mObstacles.Count - 1; i >= 0; --i)
 		{
-			if (obstacle.Right() < -mSpawnPoint.x)
+			if (mObstacles[i].Right() < -mSpawnPoint.x)
 			{
-				toDespawn.Add(obstacle);
+				Destroy(mObstacles[i].gameObject);
+				mObstacles.RemoveAt(i);
 			}
 		}
-		// ... remove them
-		foreach (var obstacle in toDespawn)
-		{
-			Destroy(obstacle.gameObject);
-			mObstacles.Remove(obstacle);
-		}
 
-		SpawnRandom();
+		AttemptSpawnRandom();
 
 		UpdateClosestToPlayer();
 	}
 
-	void SpawnRandom()
+	void AttemptSpawnRandom()
 	{
 		// instantiate new objects at a randomized time interval
 		if (Time.time > mNextSpawnTime)
 		{
-			mNextSpawnTime = Time.time + Random.Range(mMinSpawnInterval, mMaxSpawnInterval);
 			DoSpawnRandom();
 		}
 	}
@@ -110,6 +103,9 @@ public class ObstacleSpawner : MonoBehaviour
 
 	void DoSpawnRandom()
 	{
+		// set the next spawn time
+		mNextSpawnTime = Time.time + Random.Range(mMinSpawnInterval, mMaxSpawnInterval);
+
 		// select a random prefab, ...
 		var i = Random.Range(0, mObstaclePrefabs.Count);
 		// ... instantiate it at the spawn point ...

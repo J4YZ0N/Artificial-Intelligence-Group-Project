@@ -24,6 +24,7 @@ public class GameController : MonoBehaviour
 	private float speed = 2.0f;
 
 	public bool allowSpeedUp = false;
+	public bool allowAutoplay = true;
 
 	[Header("Score")]
 	// Variables to save and display score
@@ -163,8 +164,14 @@ public class GameController : MonoBehaviour
 
 
 		obstacleSpawner.DestroyAllObstacles();
-		obstacleSpawner.enabled = false;
-		neuralNetworkManager.enabled = false;
+
+		if (allowAutoplay)
+			Initialize("Play");
+		else
+		{
+			obstacleSpawner.enabled = false;
+			neuralNetworkManager.enabled = false;
+		}
 	}
 
 	// Increases speed every 10 points
