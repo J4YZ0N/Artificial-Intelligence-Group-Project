@@ -10,10 +10,10 @@ public class PlayerController : MonoBehaviour
 	public float jumpPower;
 	public GameController gameController;
 
-	private Rigidbody rigidBody;
 
-	public bool isGrounded = true;
+	bool isGrounded = false;
 
+	Rigidbody rigidBody;
 	GlobalBounds globalBounds;
 
 	// Start is called before the first frame update
@@ -34,7 +34,7 @@ public class PlayerController : MonoBehaviour
 	}
 
 	// Detects collision for ground
-	private void OnCollisionEnter(Collision col)
+	void OnCollisionEnter(Collision col)
 	{
 		if (col.gameObject.CompareTag("Ground"))
 		{
@@ -42,9 +42,12 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	private void OnCollisionExit(Collision col)
+	void OnCollisionExit(Collision col)
 	{
-		isGrounded = false;
+		if (col.gameObject.CompareTag("Ground"))
+		{
+			isGrounded = false;
+		}
 	}
 
 	// Detects if player hits obstacle

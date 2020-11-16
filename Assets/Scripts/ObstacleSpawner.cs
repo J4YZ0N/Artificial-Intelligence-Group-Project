@@ -14,6 +14,10 @@ public class ObstacleSpawner : MonoBehaviour
 
 	Vector3 mSpawnPoint;
 
+	public Vector3 spawnPoint {
+		get { return mSpawnPoint; }
+	}
+
 	List<GlobalBounds> mObstacles = new List<GlobalBounds> { };
 
 	GameController mGameController;
@@ -112,7 +116,8 @@ public class ObstacleSpawner : MonoBehaviour
 		var instance = Instantiate(mObstaclePrefabs[i], mSpawnPoint, Quaternion.identity);
 		// ... with an obstacle controller ...
 		instance.tag = "Obstacle";
-		instance.GetOrAddComponent<ObstacleController>();
+		var oc = instance.GetOrAddComponent<ObstacleController>();
+		oc.gameController = mGameController;
 		// ... a collision box, ...
 		var bc = instance.GetOrAddComponent<BoxCollider>();
 		// ... that's a trigger, ...

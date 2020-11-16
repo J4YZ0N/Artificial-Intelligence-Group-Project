@@ -1,76 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Runtime.InteropServices;
-
-public struct InputData
-{
-	public InputData(float x, float y, float z, float w)
-	{
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.w = w;
-	}
-
-	public float x;
-	public float y;
-	public float z;
-	public float w;
-}
-public struct OutputData
-{
-	public OutputData(float x, float y)
-	{
-		this.x = x;
-		this.y = y;
-	}
-
-	public float x;
-	public float y;
-}
-
-public class NeuralNetwork
-{
-	const string DLL_NAME = "neural_network";
-
-	// add 'count' networks to the array of NeuralNetworks
-	// all networks start with random weights
-	[DllImport(DLL_NAME)]
-	public static extern
-	void addNetworks(int count);
-
-	// get the outputs of NeuralNetwork at 'index' with given 'inputs'
-	[DllImport(DLL_NAME)]
-	public static extern
-	OutputData guess(int index, InputData inputs);
-
-	// trains the NeuralNetwork at 'index' with given 'inputs', 'answers'
-	// answers = expected outputs
-	[DllImport(DLL_NAME)]
-	public static extern
-	void train(int index, InputData inputs, OutputData answers);
-
-	// replaces all NeuralNetworks with copies of NeuralNetwork at 'index'
-	[DllImport(DLL_NAME)]
-	public static extern
-	void replaceOthers(int index);
-
-	// mutate neural networks in range lo, hi
-	[DllImport(DLL_NAME)]
-	public static extern
-	void mutate(int lo, int hi);
-
-	// save the specific neural network at index
-	[DllImport(DLL_NAME)]
-	public static extern
-	void save(int index);
-
-	// replace neural network at index with saved data
-	[DllImport(DLL_NAME)]
-	public static extern
-	void load(int index);
-}
 
 public class NeuralNetworkManager : MonoBehaviour
 {
@@ -80,7 +10,7 @@ public class NeuralNetworkManager : MonoBehaviour
 	public Vector3 mSpawnPosition = new Vector3(-3.0f, 0, 0);
 
 	// amount of neural networks to create
-	const int mCount = 256;
+	const int mCount = 500;
 	int mActiveCount = mCount;
 
 	// list of AI players
@@ -94,7 +24,7 @@ public class NeuralNetworkManager : MonoBehaviour
 	GameController sGameController;
 	ObstacleSpawner sObstacleSpawner;
 
-	float mBestFitness = -Mathf.Infinity;
+	float mHistoricallyBestFitness = -Mathf.Infinity;
 
 	float mCurrentBestFitness;
 	int mCurrentBestIndex;
@@ -193,50 +123,81 @@ public class NeuralNetworkManager : MonoBehaviour
 
 	void DeactivateDeadAIs()
 	{
-		List<AI> toDeactivate = new List<AI>();
+		//List<AI> toDeactivate = new List<AI>();
 
 		foreach (var ai in mAIs)
 		{
-			if (ai.isActiveAndEnabled && ai.mTimeOfDeath > 0)
-			{
-				toDeactivate.Add(ai);
-			}
-		}
+			// ignore already deactivated AIs
+			if (!ai.isActiveAndEnabled)
+				continue;
 
-		for (int i = 0; i < toDeactivate.Count; ++i)
-		{
-			var value = Fitness(i);
-			if (value > mCurrentBestFitness)
+			// if AI is dead then ...
+			if	(ai.mTimeOfDeath > 0)
 			{
-				mCurrentBestFitness = value;
-				mCurrentBestIndex = toDeactivate[i].mIndex;
-				Debug.Log("Current Best = " + mCurrentBestFitness);
-				if (value > mBestFitness)
+				// ... calculate its fitness and ...
+				var time_fitness = (ai.mTimeOfDeath - mStartTime);
+				var dist_fitness = sObstacleSpawner.ClosestObstacleToPlayer().Right() - mPlayerMinX;
+				var fitness = time_fitness - dist_fitness * 0.8f;
+				// ... compare it to the current best
+				if (fitness > mCurrentBestFitness)
 				{
-					mBestFitness = value;
-					Debug.Log("Current Best = " + mBestFitness + " saved");
-					NeuralNetwork.save(toDeactivate[i].mIndex);
+					mCurrentBestFitness = fitness;
+					mCurrentBestIndex = ai.mIndex;
+					Debug.Log("Current Best Fitness: " + mCurrentBestFitness);
+
+					if (fitness > mHistoricallyBestFitness)
+					{
+						mHistoricallyBestFitness = fitness;
+						NeuralNetwork.save(ai.mIndex);
+						Debug.Log("Historically Best Fitness: " + mCurrentBestFitness + " (AI SAVED)");
+					}
 				}
+
+				ai.gameObject.SetActive(false);
+				--mActiveCount;
 			}
-			//mAIs.Remove(toDeactivate[i]);
-			toDeactivate[i].gameObject.SetActive(false);
-			--mActiveCount;
-			//mInactiveAIs.Add(toDeactivate[i]);
 		}
+
+		// foreach (var ai in mAIs)
+		// {
+		// 	if (ai.isActiveAndEnabled && ai.mTimeOfDeath > 0)
+		// 	{
+		// 		toDeactivate.Add(ai);
+		// 	}
+		// }
+
+		// for (int i = 0; i < toDeactivate.Count; ++i)
+		// {
+		// 	var value = Fitness(i);
+		// 	if (value > mCurrentBestFitness)
+		// 	{
+		// 		mCurrentBestFitness = value;
+		// 		mCurrentBestIndex = toDeactivate[i].mIndex;
+		// 		Debug.Log("Current Best = " + mCurrentBestFitness);
+		// 		if (value > mBestFitness)
+		// 		{
+		// 			mBestFitness = value;
+		// 			Debug.Log("Current Best = " + mBestFitness + " saved");
+		// 			NeuralNetwork.save(toDeactivate[i].mIndex);
+		// 		}
+		// 	}
+		// 	//mAIs.Remove(toDeactivate[i]);
+		// 	toDeactivate[i].gameObject.SetActive(false);
+		// 	--mActiveCount;
+		// 	//mInactiveAIs.Add(toDeactivate[i]);
+		// }
 	}
 
-	// fitness of AI in mAIs[i]
-	// note: NOT THE SAME AS NEURAL NETWORK INDEX!
-	float Fitness(int i)
-	{
-		return (mAIs[0].mTimeOfDeath - mStartTime) - DistanceToClosestObstacle(i);
-	}
-
-	float DistanceToClosestObstacle(int i)
-	{
-		return Vector2.Dot(mAIs[0].BottomLeft(),
-			sObstacleSpawner.ClosestObstacleToPlayer().TopRight());
-	}
+	// fitness of mAIs[i]
+	// float Fitness(int i)
+	// {
+	// 	return (mAIs[0].mTimeOfDeath - mStartTime) - DistanceToClosestObstacle(i);
+	// }
+	// float DistanceToClosestObstacle(int i)
+	// {
+	// 	return Vector2.Dot(mAIs[0].BottomLeft(),
+	// 		sObstacleSpawner.ClosestObstacleToPlayer().TopRight());
+	// }
 
 	//
 	void SetJumpPredictions()
@@ -251,9 +212,12 @@ public class NeuralNetworkManager : MonoBehaviour
 		{
 			if (!ai.isActiveAndEnabled)
 				continue;
-			var inputs = new InputData( distance.x, distance.y, ai.transform.position.y / 2.0f, 0 );
+			var inputs = new InputData(
+				distance.x / sObstacleSpawner.spawnPoint.x,
+				distance.y / 5.0f,
+				ai.transform.position.y / 5.0f,
+				0);
 			var outputs = NeuralNetwork.guess(ai.mIndex, inputs);
-			//Debug.Log("x: " + outputs.x + ", y: " + outputs.y);
 			ai.mShouldJump = outputs.x > outputs.y;
 		}
 	}
