@@ -29,7 +29,7 @@ public class ObstacleSpawner : MonoBehaviour
 	// closest obstacle to player's right
 	GlobalBounds mClosestObstacle;
 	// highlight to identify the closest
-	Highlight mHighlight;
+	//Highlight mHighlight;
 
 	// distance
 	float mObstacleExtentX;
@@ -40,7 +40,7 @@ public class ObstacleSpawner : MonoBehaviour
 		mGameController = GetComponent<GameController>();
 		mPlayerMinX = GetComponent<NeuralNetworkManager>().FindPlayerLeft();
 
-		mHighlight = gameObject.GetOrAddComponent<Highlight>();
+		//mHighlight = gameObject.GetOrAddComponent<Highlight>();
 
 		// set resetPosition relative to camera's bounds
 		var x = Camera.main.orthographicSize * Camera.main.aspect;
@@ -48,7 +48,7 @@ public class ObstacleSpawner : MonoBehaviour
 
 		DoSpawnRandom();
 		mClosestObstacle = mObstacles[0];
-		mHighlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
+		//mHighlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
 	}
 
 	void Update()
@@ -83,7 +83,7 @@ public class ObstacleSpawner : MonoBehaviour
 		if (mClosestObstacle == null)
 		{
 			mClosestObstacle = mObstacles[0];
-			mHighlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
+			//mHighlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
 		}
 
 		var x = mClosestObstacle.Right();
@@ -102,7 +102,7 @@ public class ObstacleSpawner : MonoBehaviour
 					minDist = dist;
 				}
 			}
-			mHighlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
+			//mHighlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
 		}
 	}
 

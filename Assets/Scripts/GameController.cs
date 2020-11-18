@@ -4,23 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.IO;
-using Util;
 
 public class GameController : MonoBehaviour
 {
 	[Header("Obstacles")]
-	// Variables to change level theme
-	public LevelThemes plain;
-	//public LevelThemes desert;
-	//public LevelThemes ice;
-	//public LevelThemes lava;
-	//public LevelThemes grave;
-	//public LevelThemes fort;
-
-	// Variables to create obstacles
-	//public GameObject obstacle;
-	//private GameObject instantiation;
-	//public List<GameObject> obstacles;
 	private float speed = 2.0f;
 
 	public bool allowSpeedUp = false;
@@ -69,6 +56,7 @@ public class GameController : MonoBehaviour
 
 	ObstacleSpawner obstacleSpawner;
 	NeuralNetworkManager neuralNetworkManager;
+	ChangeTheme themeChanger;
 
 	// Start is called before the first frame update
 	void Start()
@@ -78,6 +66,7 @@ public class GameController : MonoBehaviour
 
 		obstacleSpawner = GetComponent<ObstacleSpawner>();
 		neuralNetworkManager = GetComponent<NeuralNetworkManager>();
+		themeChanger = GetComponent<ChangeTheme>();
 
 		if (obstacleSpawner == null)
 		{
@@ -110,14 +99,6 @@ public class GameController : MonoBehaviour
 				Debug.Log("mode " + mode + " defaulted");
 				break;
 		}
-
-		// creates an pool of obstacles
-		/*obstacles = new List<GameObject>();
-
-		for (int i = 0; i < 5; i++)
-		{
-				//obstacles.Add(Instantiate(obstacle));
-		}*/
 	}
 
 
@@ -144,9 +125,6 @@ public class GameController : MonoBehaviour
 		Speed = 2.0f;
 		InvokeRepeating("UpSpeed", 0.0f, 1.0f);
 
-		/*GameObject.Destroy(instantiation);
-		instantiation = Instantiate(obstacle);*/
-
 		obstacleSpawner.enabled = true;
 		neuralNetworkManager.enabled = true;
 	}
@@ -161,7 +139,6 @@ public class GameController : MonoBehaviour
 		CancelInvoke("UpSpeed");
 		Speed = 0.0f;
 		CancelInvoke("AddScore");
-
 
 		obstacleSpawner.DestroyAllObstacles();
 
@@ -180,6 +157,7 @@ public class GameController : MonoBehaviour
 		if (allowSpeedUp && score % 10 == 0)
 		{
 			Speed += 1.0f;
+			themeChanger.Change();
 		}
 	}
 

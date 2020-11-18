@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1244811084424191773}
   - component: {fileID: 9142175416078011931}
   m_Layer: 8
-  m_Name: fbKnight
+  m_Name: Human Player
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -42,7 +42,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1244811084427337669}
-  m_Mesh: {fileID: 4300000, guid: bc1857a9becc04adc87b822df0ae53e9, type: 3}
+  m_Mesh: {fileID: 4300000, guid: c4dd101abb5e94c46908eaea32e5b013, type: 3}
 --- !u!23 &1244811084429461659
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f05902f6ea4a44654b2f50a553e1485a, type: 2}
+  - {fileID: 2100000, guid: 6758b689e0795b6418e34fa2b550ac4e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -127,4 +127,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jumpPower: 4.5
   gameController: {fileID: 0}
-  isGrounded: 1
