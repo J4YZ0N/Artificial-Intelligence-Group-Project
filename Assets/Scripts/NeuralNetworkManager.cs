@@ -10,7 +10,7 @@ public class NeuralNetworkManager : MonoBehaviour
 	public Vector3 mSpawnPosition = new Vector3(-3.0f, 0, 0);
 
 	// amount of neural networks to create
-	const int mCount = 500;
+	const int mCount = 640;
 	int mActiveCount = mCount;
 
 	// list of AI players
@@ -18,8 +18,7 @@ public class NeuralNetworkManager : MonoBehaviour
 
 	// constant minimum x bound of player in global space
 	// used when trying to find closest obstacle to the right
-	[System.NonSerialized]
-	public float mPlayerMinX;
+	public float mPlayerLeft;
 
 	GameController sGameController;
 	ObstacleSpawner sObstacleSpawner;
@@ -33,6 +32,8 @@ public class NeuralNetworkManager : MonoBehaviour
 
 	void Start()
 	{
+		mPlayerLeft = FindPlayerLeft();
+
 		sGameController = GetComponent<GameController>();
 		sObstacleSpawner = GetComponent<ObstacleSpawner>();
 
@@ -59,8 +60,6 @@ public class NeuralNetworkManager : MonoBehaviour
 		mStartTime = Time.time;
 		mCurrentBestFitness = -Mathf.Infinity;
 		mCurrentBestIndex = 0;
-
-		SetPlayerMinX();
 	}
 
 	void ReactivateAIs()
@@ -110,7 +109,7 @@ public class NeuralNetworkManager : MonoBehaviour
 			NeuralNetwork.load(1);
 			// mutate all but the first 2 AI
 			NeuralNetwork.mutate(2, mCount - 1);
-			NeuralNetwork.mutate(2, mCount - 1);
+			//NeuralNetwork.mutate(2, mCount - 1);
 
 			// switch to game over mode
 			sGameController.Initialize("Over");
@@ -136,7 +135,7 @@ public class NeuralNetworkManager : MonoBehaviour
 			{
 				// ... calculate its fitness and ...
 				var time_fitness = (ai.mTimeOfDeath - mStartTime);
-				var dist_fitness = sObstacleSpawner.ClosestObstacleToPlayer().Right() - mPlayerMinX;
+				var dist_fitness = sObstacleSpawner.ClosestObstacleToPlayer().Right() - mPlayerLeft;
 				var fitness = time_fitness - dist_fitness * 0.8f;
 				// ... compare it to the current best
 				if (fitness > mCurrentBestFitness)
@@ -149,7 +148,8 @@ public class NeuralNetworkManager : MonoBehaviour
 					{
 						mHistoricallyBestFitness = fitness;
 						NeuralNetwork.save(ai.mIndex);
-						Debug.Log("Historically Best Fitness: " + mCurrentBestFitness + " (AI SAVED)");
+						Debug.Log("Historically Best Fitness: "
+							+ mCurrentBestFitness + " (AI SAVED)");
 					}
 				}
 
@@ -157,79 +157,51 @@ public class NeuralNetworkManager : MonoBehaviour
 				--mActiveCount;
 			}
 		}
-
-		// foreach (var ai in mAIs)
-		// {
-		// 	if (ai.isActiveAndEnabled && ai.mTimeOfDeath > 0)
-		// 	{
-		// 		toDeactivate.Add(ai);
-		// 	}
-		// }
-
-		// for (int i = 0; i < toDeactivate.Count; ++i)
-		// {
-		// 	var value = Fitness(i);
-		// 	if (value > mCurrentBestFitness)
-		// 	{
-		// 		mCurrentBestFitness = value;
-		// 		mCurrentBestIndex = toDeactivate[i].mIndex;
-		// 		Debug.Log("Current Best = " + mCurrentBestFitness);
-		// 		if (value > mBestFitness)
-		// 		{
-		// 			mBestFitness = value;
-		// 			Debug.Log("Current Best = " + mBestFitness + " saved");
-		// 			NeuralNetwork.save(toDeactivate[i].mIndex);
-		// 		}
-		// 	}
-		// 	//mAIs.Remove(toDeactivate[i]);
-		// 	toDeactivate[i].gameObject.SetActive(false);
-		// 	--mActiveCount;
-		// 	//mInactiveAIs.Add(toDeactivate[i]);
-		// }
 	}
 
-	// fitness of mAIs[i]
-	// float Fitness(int i)
-	// {
-	// 	return (mAIs[0].mTimeOfDeath - mStartTime) - DistanceToClosestObstacle(i);
-	// }
-	// float DistanceToClosestObstacle(int i)
-	// {
-	// 	return Vector2.Dot(mAIs[0].BottomLeft(),
-	// 		sObstacleSpawner.ClosestObstacleToPlayer().TopRight());
-	// }
-
-	//
+	//float prevObH = 0;
+	//float maxHeight = -1000;
 	void SetJumpPredictions()
 	{
-		/*var distance = sObstacleSpawner
-			.ClosestObstacleToPlayer().TopRight() - new Vector2(
-				mSpawnPosition.x, mSpawnPosition.y) * 0.5f;
-		distance.Normalize();*/
-
-		var obstacleDist = Utilities.Map(
-			sObstacleSpawner.ClosestObstacleToPlayer().Right(),
-			mPlayerMinX, sObstacleSpawner.spawnPoint.x, 0, 1);
-		var obstacleHeight = sObstacleSpawner.ClosestObstacleToPlayer().Top() / 5;
+		var obstacle = sObstacleSpawner.ClosestObstacleToPlayer();
+		var obstacleDist = Utilities.Map(obstacle.Right(),
+			mPlayerLeft, sObstacleSpawner.spawnPoint.x, 0, 1);
+		var obstacleHeight = obstacle.transform.localScale.y > 1 ? 1f : 0f; // is tall yes : no
+		/*if (obstacleHeight != prevObH)
+		{
+			Debug.Log("OBSTACLE HEIGHT: " + obstacleHeight);
+			prevObH = obstacleHeight;
+		}*/
 
 		// todo: get values for input data
 		foreach (var ai in mAIs)
 		{
 			if (!ai.isActiveAndEnabled)
 				continue;
-			var inputs = new InputData(obstacleDist, obstacleHeight, ai.mGlobalBounds.Bottom() / 5, 0);
-			/*var inputs = new InputData(
-				distance.x / sObstacleSpawner.spawnPoint.x,
-				distance.y / 5.0f,
-				ai.transform.position.y / 5.0f,
-				0);*/
+			/*if (maxHeight < ai.mGlobalBounds.transform.position.y)
+			{
+				maxHeight = ai.mGlobalBounds.transform.position.y;
+				Debug.Log("MAX HEIGHT = " + maxHeight);
+			}*/
+			var aiHeight = ai.HasJumped() ? 1f : 0f; // has jumped yes : no
+			//var aiHeight = ai.transform.position.y / 3;
+			var inputs = new InputData(
+				obstacleDist,
+				obstacleHeight,
+				aiHeight, 
+				0);
+			/*if (obstacleHeight < 1 && aiHeight > 0.5f)
+			{
+				NeuralNetwork.train(ai.mIndex, inputs, new OutputData(0.5f, 0));
+				Debug.Log("retrained");
+			}*/
 			var outputs = NeuralNetwork.guess(ai.mIndex, inputs);
 			ai.mShouldJump = outputs.x > outputs.y;
+			ai.mShouldDoubleJump = outputs.y > 0.6f;
 		}
 	}
 
-	// 
-	void SetPlayerMinX()
+	public float FindPlayerLeft()
 	{
 		float maxOffset = 0;
 		foreach (var player in mPlayerPrefabs)
@@ -237,7 +209,7 @@ public class NeuralNetworkManager : MonoBehaviour
 			maxOffset = Mathf.Max(maxOffset,
 				player.GetComponent<BoxCollider>().bounds.extents.x);
 		}
-		mPlayerMinX = mSpawnPosition.x - maxOffset;
+		return mSpawnPosition.x - maxOffset;
 	}
 
 	/*void PredictionTest()

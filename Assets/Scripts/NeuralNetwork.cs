@@ -29,7 +29,7 @@ public struct OutputData
 
 public class NeuralNetwork
 {
-	const string DLL_NAME = "neural_network";
+	const string DLL_NAME = "neural_network3";
 
 	// add 'count' networks to the array of NeuralNetworks
 	// all networks start with random weights

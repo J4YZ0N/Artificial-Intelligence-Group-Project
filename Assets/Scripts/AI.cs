@@ -13,11 +13,13 @@ public class AI : MonoBehaviour
 	/*[System.NonSerialized]
 	public GameController sGameController;*/
 
-	bool mIsGrounded = false;
+	int mJumpCount = 2;
 
 	// value updated by nn manager
 	[System.NonSerialized]
 	public bool mShouldJump = false;
+	[System.NonSerialized]
+	public bool mShouldDoubleJump = false;
 
 	const float mJumpPower = 4.5f;
 
@@ -51,7 +53,13 @@ public class AI : MonoBehaviour
 		transform.position = mStartPosition;
 		mTimeOfDeath = -1;
 		mShouldJump = false;
-		mIsGrounded = false;
+		mShouldDoubleJump = false;
+		mJumpCount = 2;
+	}
+
+	public bool HasJumped()
+	{
+		return mJumpCount > 0;
 	}
 
 	void Update()
@@ -60,8 +68,7 @@ public class AI : MonoBehaviour
 		//	probably should do it in nn manager since inputs
 		//	should be the same for every AI (or should they?)
 
-		if (mShouldJump)
-			Jump();
+		Jump();
 
 		// add result to the record
 		/*mActionRecord[mNextRecordIndex] = mShouldJump;
@@ -71,24 +78,42 @@ public class AI : MonoBehaviour
 
 	void Jump()
 	{
-		if (mIsGrounded)
+		var jump = mJumpCount < 2 && mShouldJump;
+		var doubleJump = mJumpCount == 1 && mShouldDoubleJump;
+		if (jump && mRigidBody.velocity.y <= 0)
 		{
-			mRigidBody.velocity = new Vector3(
-				0.0f, mJumpPower, 0.0f);
+			mRigidBody.velocity = new Vector3(0, mJumpPower, 0);
+			++mJumpCount;
+		}
+	}
+
+	void Duck()
+	{
+		// if grounded
+		if (mJumpCount == 0)
+		{
+			transform.localScale = new Vector3(
+				transform.localScale.x,
+				transform.localScale.y / 2,
+				transform.localScale.z);
+			transform.position = new Vector3(
+				transform.position.x,
+				transform.position.y / 2,
+				transform.position.z);
 		}
 	}
 
 	private void OnCollisionEnter(Collision col)
 	{
 		if (col.gameObject.CompareTag("Ground"))
-			mIsGrounded = true;
+			mJumpCount = 0;
 	}
 
-	private void OnCollisionExit(Collision col)
+	/*private void OnCollisionExit(Collision col)
 	{
 		if (col.gameObject.CompareTag("Ground"))
 			mIsGrounded = false;
-	}
+	}*/
 
 	// Detects if player hits obstacle
 	void OnTriggerEnter(Collider other)

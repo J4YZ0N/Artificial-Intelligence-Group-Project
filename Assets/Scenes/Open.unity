@@ -1397,8 +1397,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mObstaclePrefabs:
-  - {fileID: 118068, guid: e6bf30ac90cb47546a77a048ed1fe4ba, type: 3}
-  - {fileID: 122152, guid: 40b1030f3b2e8cb42a584be9bbb07672, type: 3}
+  - {fileID: 5081775441915348207, guid: dc9151fc78838f74da58cd23fe1c1d57, type: 3}
+  - {fileID: 5116312678621956671, guid: d38d65afdbf202843b974a7e2e0afd64, type: 3}
   mMinSpawnInterval: 1
   mMaxSpawnInterval: 4
 --- !u!114 &914442196
@@ -1416,6 +1416,7 @@ MonoBehaviour:
   mPlayerPrefabs:
   - {fileID: 2143011516800050699, guid: 7f6995fe97456b64a8963d8da41de925, type: 3}
   mSpawnPosition: {x: -2.8, y: 0.5, z: 0}
+  mPlayerLeft: 0
 --- !u!1 &943372021
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ObstacleSpawner : MonoBehaviour
 {
-	public List<GameObject> mObstaclePrefabs = new List<GameObject> { };
+	public List<GameObject> mObstaclePrefabs = new List<GameObject>();
 
 	public float mMinSpawnInterval = 1.0f;
 	public float mMaxSpawnInterval = 4.0f;
@@ -18,13 +18,18 @@ public class ObstacleSpawner : MonoBehaviour
 		get { return mSpawnPoint; }
 	}
 
-	List<GlobalBounds> mObstacles = new List<GlobalBounds> { };
+	List<GlobalBounds> mObstacles = new List<GlobalBounds>();
+
+	// Upside-down obstacles for the AIs to hit their heads on
+	List<GlobalBounds> mUpsidedownObstacles = new List<GlobalBounds>();
 
 	GameController mGameController;
 	//NeuralNetworkManager mNeuralNetManager;
 	
 	// closest obstacle to player's right
 	GlobalBounds mClosestObstacle;
+	// highlight to identify the closest
+	Highlight mHighlight;
 
 	// distance
 	float mObstacleExtentX;
@@ -33,8 +38,9 @@ public class ObstacleSpawner : MonoBehaviour
 	void Start()
 	{
 		mGameController = GetComponent<GameController>();
-		mPlayerMinX = GetComponent<NeuralNetworkManager>().mPlayerMinX;
+		mPlayerMinX = GetComponent<NeuralNetworkManager>().FindPlayerLeft();
 
+		mHighlight = gameObject.GetOrAddComponent<Highlight>();
 
 		// set resetPosition relative to camera's bounds
 		var x = Camera.main.orthographicSize * Camera.main.aspect;
@@ -42,6 +48,7 @@ public class ObstacleSpawner : MonoBehaviour
 
 		DoSpawnRandom();
 		mClosestObstacle = mObstacles[0];
+		mHighlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
 	}
 
 	void Update()
@@ -74,7 +81,10 @@ public class ObstacleSpawner : MonoBehaviour
 	void UpdateClosestToPlayer()
 	{
 		if (mClosestObstacle == null)
+		{
 			mClosestObstacle = mObstacles[0];
+			mHighlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
+		}
 
 		var x = mClosestObstacle.Right();
 
@@ -82,11 +92,17 @@ public class ObstacleSpawner : MonoBehaviour
 		{
 			// assuming the first obstacle with x > player's
 			// is the next closest
+			float minDist = 1000;
 			foreach (var obstacle in mObstacles)
 			{
-				if (obstacle.Right() > mPlayerMinX)
+				float dist = obstacle.Right() - mPlayerMinX;
+				if (obstacle.Right() > mPlayerMinX && dist < minDist)
+				{
 					mClosestObstacle = obstacle;
+					minDist = dist;
+				}
 			}
+			mHighlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
 		}
 	}
 
@@ -101,7 +117,12 @@ public class ObstacleSpawner : MonoBehaviour
 		{
 			Destroy(obstacle.gameObject);
 		}
+		foreach (var obstacle in mUpsidedownObstacles)
+		{
+			Destroy(obstacle.gameObject);
+		}
 		mObstacles.Clear();
+		mUpsidedownObstacles.Clear();
 		mNextSpawnTime = mStartSpawnTime;
 	}
 
@@ -112,19 +133,41 @@ public class ObstacleSpawner : MonoBehaviour
 
 		// select a random prefab, ...
 		var i = Random.Range(0, mObstaclePrefabs.Count);
-		// ... instantiate it at the spawn point ...
-		var instance = Instantiate(mObstaclePrefabs[i], mSpawnPoint, Quaternion.identity);
-		// ... with an obstacle controller ...
-		instance.tag = "Obstacle";
-		var oc = instance.GetOrAddComponent<ObstacleController>();
-		oc.gameController = mGameController;
-		// ... a collision box, ...
-		var bc = instance.GetOrAddComponent<BoxCollider>();
-		// ... that's a trigger, ...
-		bc.isTrigger = true;
-		// ... and GlobalBounds, ...
-		var gb = instance.GetOrAddComponent<GlobalBounds>();
-		// ... and finally add its GlobalBound to our list
-		mObstacles.Add(gb);
+		{
+			// ... instantiate it at the spawn point ...
+			var instance = Instantiate(mObstaclePrefabs[i], mSpawnPoint, Quaternion.identity);
+			// ... with an obstacle controller ...
+			instance.tag = "Obstacle";
+			var oc = instance.GetOrAddComponent<ObstacleController>();
+			oc.gameController = mGameController;
+			// ... a collision box, ...
+			var bc = instance.GetOrAddComponent<BoxCollider>();
+			// ... that's a trigger, ...
+			bc.isTrigger = true;
+			// ... and GlobalBounds, ...
+			var gb = instance.GetOrAddComponent<GlobalBounds>();
+			// ... and finally add its GlobalBound to our list
+			mObstacles.Add(gb);
+		}
+
+		if (i == 0)
+		{
+			// ... instantiate it at the spawn point ...
+			var instance2 = Instantiate(mObstaclePrefabs[1], mSpawnPoint, Quaternion.identity);
+			instance2.transform.position = new Vector3(instance2.transform.position.x, 3f, instance2.transform.position.z);
+			instance2.transform.eulerAngles += new Vector3(0, 0, 180);
+			// ... with an obstacle controller ...
+			instance2.tag = "Obstacle";
+			var oc2 = instance2.GetOrAddComponent<ObstacleController>();
+			oc2.gameController = mGameController;
+			// ... a collision box, ...
+			var bc2 = instance2.GetOrAddComponent<BoxCollider>();
+			// ... that's a trigger, ...
+			bc2.isTrigger = true;
+			// ... and GlobalBounds, ...
+			var gb2 = instance2.GetOrAddComponent<GlobalBounds>();
+			// ... and finally add its GlobalBound to our list
+			mUpsidedownObstacles.Add(gb2);
+		}
 	}
 }
