@@ -10,20 +10,17 @@ public class PlayerController : MonoBehaviour
 	public float jumpPower;
 	public GameController gameController;
 
-	private Rigidbody rigidBody;
 
-	//private BoxCollider boxCollider;
+	bool isGrounded = false;
 
-	public bool isGrounded = true;
-
-	float top;
+	Rigidbody rigidBody;
+	GlobalBounds globalBounds;
 
 	// Start is called before the first frame update
 	void Start()
 	{
 		rigidBody = GetComponent<Rigidbody>();
-		var boxCollider = GetComponent<BoxCollider>();
-		top = boxCollider.extents.y;
+		globalBounds = GetComponent<GlobalBounds>();
 	}
 
 	// Update is called once per frame
@@ -37,7 +34,7 @@ public class PlayerController : MonoBehaviour
 	}
 
 	// Detects collision for ground
-	private void OnCollisionEnter(Collision col)
+	void OnCollisionEnter(Collision col)
 	{
 		if (col.gameObject.CompareTag("Ground"))
 		{
@@ -45,9 +42,12 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	private void OnCollisionExit(Collision col)
+	void OnCollisionExit(Collision col)
 	{
-		isGrounded = false;
+		if (col.gameObject.CompareTag("Ground"))
+		{
+			isGrounded = false;
+		}
 	}
 
 	// Detects if player hits obstacle
@@ -57,8 +57,8 @@ public class PlayerController : MonoBehaviour
 			gameController.Initialize("Over");
 	}
 
-	Vector2 getBottomMiddle()
+	Vector2 GetBottomLeft()
 	{
-		return new Vector2(transform.position.x, transform.position.y - top);
+		return globalBounds.BottomLeft();
 	}
 }
