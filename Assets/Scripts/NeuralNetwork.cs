@@ -29,7 +29,7 @@ public struct OutputData
 
 public class NeuralNetwork
 {
-	const string DLL_NAME = "neural_network3";
+	const string DLL_NAME = "neural_network_v3";
 
 	// add 'count' networks to the array of NeuralNetworks
 	// all networks start with random weights
@@ -67,4 +67,14 @@ public class NeuralNetwork
 	[DllImport(DLL_NAME)]
 	public static extern
 	void load(int index);
+
+	// save the specific neural network at index
+	[DllImport(DLL_NAME)]
+	public static extern
+	void save(int index, string filename);
+
+	// replace neural network at index with saved data
+	[DllImport(DLL_NAME)]
+	public static extern
+	void load(int index, string filename);
 }

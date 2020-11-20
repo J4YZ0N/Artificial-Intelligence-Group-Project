@@ -51,7 +51,7 @@ public class ObstacleSpawner : MonoBehaviour
 
 		DoSpawnRandom();
 		mClosestObstacle = mObstacles[0];
-		Highlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
+		//Highlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
 	}
 
 	void Update()
@@ -94,7 +94,7 @@ public class ObstacleSpawner : MonoBehaviour
 		if (mClosestObstacle == null)
 		{
 			mClosestObstacle = mObstacles[0];
-			Highlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
+			//Highlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
 		}
 
 		var x = mClosestObstacle.Right();
@@ -110,7 +110,7 @@ public class ObstacleSpawner : MonoBehaviour
 				if (obstacle.Right() > mPlayerMinX && dist < minDist)
 				{
 					mClosestObstacle = obstacle;
-					Highlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
+					//Highlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
 					minDist = dist;
 				}
 			}
@@ -183,7 +183,7 @@ public class ObstacleSpawner : MonoBehaviour
 
 				// ... instantiate it at the spawn point ...
 				var instance2 = Instantiate(p, mSpawnPoint, Quaternion.identity);
-				instance2.transform.position = new Vector3(instance2.transform.position.x, 3.5f, instance2.transform.position.z);
+				instance2.transform.position = new Vector3(instance2.transform.position.x, 3f, instance2.transform.position.z);
 				instance2.transform.eulerAngles += new Vector3(0, 0, 180);
 				// ... with an obstacle controller ...
 				//instance2.tag = "Obstacle";

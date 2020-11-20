@@ -13,8 +13,8 @@ public class AI : MonoBehaviour
 	// value updated by nn manager
 	[System.NonSerialized]
 	public bool mShouldJump = false;
-	[System.NonSerialized]
-	public bool mShouldDoubleJump = false;
+	/*[System.NonSerialized]
+	public bool mShouldDoubleJump = false;*/
 
 	const float mJumpPower = 4.5f;
 
@@ -41,7 +41,7 @@ public class AI : MonoBehaviour
 		transform.position = mStartPosition;
 		mTimeOfDeath = -1;
 		mShouldJump = false;
-		mShouldDoubleJump = false;
+		//mShouldDoubleJump = false;
 		mJumpCount = 2;
 	}
 
@@ -57,17 +57,14 @@ public class AI : MonoBehaviour
 
 	void Jump()
 	{
-		var jump = mJumpCount < 2 && mShouldJump;
-		var doubleJump = mJumpCount == 1 && mShouldDoubleJump;
-		if (jump && mRigidBody.velocity.y <= 0)
+		if (mJumpCount < 2 && mShouldJump && mRigidBody.velocity.y <= 0)
 		{
-			mAnimator.SetBool("Jumping", true);
+			if (mJumpCount == 0)
+				mAnimator.SetBool("Jumping", true);
+			else
+				mAnimator.SetBool("Double Jumping", true);
 			mRigidBody.velocity = new Vector3(0, mJumpPower, 0);
 			++mJumpCount;
-		}
-		if (doubleJump && mRigidBody.velocity.y <= 0)
-		{
-			mAnimator.SetBool("Double Jumping", true);
 		}
 	}
 

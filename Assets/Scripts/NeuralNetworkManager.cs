@@ -10,7 +10,7 @@ public class NeuralNetworkManager : MonoBehaviour
 	public Vector3 mSpawnPosition = new Vector3(-3.0f, 0, 0);
 
 	// amount of neural networks to create
-	const int mCount = 200;
+	const int mCount = 640;
 	int mActiveCount = mCount;
 
 	// list of AI players
@@ -78,12 +78,12 @@ public class NeuralNetworkManager : MonoBehaviour
 	{
 		if (Input.GetKeyDown(KeyCode.F5))
 		{
-			NeuralNetwork.save(0);
+			NeuralNetwork.save(0, "mynnd.dat");
 			Debug.Log("AI Saved from NeuralNetwork0");
 		}
 		else if (Input.GetKeyDown(KeyCode.F8))
 		{
-			NeuralNetwork.load(1);
+			NeuralNetwork.load(1, "mynnd.dat");
 			Debug.Log("AI Loaded to NeuralNetwork1");
 		}
 		
@@ -173,11 +173,12 @@ public class NeuralNetworkManager : MonoBehaviour
 				obstacleDist,
 				obstacleHeight,
 				aiHeight, 
-				0);
+				1 - obstacleHeight);
 
 			var outputs = NeuralNetwork.guess(ai.mIndex, inputs);
 			ai.mShouldJump = outputs.x > outputs.y;
-			ai.mShouldDoubleJump = outputs.y > 0.6f;
+
+			//ai.mShouldDoubleJump = outputs.y > 0.6f;
 		}
 	}
 
