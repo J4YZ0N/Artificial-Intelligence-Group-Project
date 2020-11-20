@@ -547,7 +547,7 @@ GameObject:
   - component: {fileID: 8996828137815650008}
   - component: {fileID: 9046224789465743490}
   m_Layer: 8
-  m_Name: KadukiSailorSuitPrefab
+  m_Name: AI Player 8
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -580,8 +580,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 0.4}
-  m_Center: {x: 0, y: 0.5, z: -0.05}
+  m_Size: {x: 0.4, y: 1, z: 0.4}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!54 &9046224789465743488
 Rigidbody:
   m_ObjectHideFlags: 0

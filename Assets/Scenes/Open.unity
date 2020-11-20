@@ -2296,6 +2296,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mPlayerPrefabs:
   - {fileID: 5197068912838735714, guid: 93cd501d7a515d74aaf791e8e4c93ddb, type: 3}
+  - {fileID: 785024209483531475, guid: f82995b08a8c5a84a899fe841909457e, type: 3}
+  - {fileID: 1828963015266804957, guid: 401b5c5a3c4ac5b48be4ee43f00fbfb7, type: 3}
+  - {fileID: 6101038494759149254, guid: 90f7a6d8e674dcc42a4b35ef30bce376, type: 3}
+  - {fileID: 2009029642920520994, guid: b7074d7de8b197f4f8678a6b35334bd7, type: 3}
+  - {fileID: 1621067230510654046, guid: 92e78013bb1e9d445915d712d1bb1db6, type: 3}
+  - {fileID: 120874022549135776, guid: 1b3040433cbcc8b4885145375339a08f, type: 3}
+  - {fileID: 9045805331505271782, guid: 1cda149cf293ffc4daa8b4d57d4c8d80, type: 3}
+  - {fileID: 2327196743210205641, guid: 6c268589d37daf34c99d9c840537b61f, type: 3}
   mSpawnPosition: {x: -2.8, y: 0.5, z: 0}
   mPlayerLeft: 0
 --- !u!114 &914442197

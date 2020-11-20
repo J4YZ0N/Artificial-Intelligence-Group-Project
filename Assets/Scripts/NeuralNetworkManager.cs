@@ -10,7 +10,7 @@ public class NeuralNetworkManager : MonoBehaviour
 	public Vector3 mSpawnPosition = new Vector3(-3.0f, 0, 0);
 
 	// amount of neural networks to create
-	const int mCount = 640;
+	const int mCount = 512;
 	int mActiveCount = mCount;
 
 	// list of AI players
@@ -19,6 +19,7 @@ public class NeuralNetworkManager : MonoBehaviour
 	// constant minimum x bound of player in global space
 	// used when trying to find closest obstacle to the right
 	public float mPlayerLeft;
+	float mPlayerRight;
 
 	GameController sGameController;
 	ObstacleSpawner sObstacleSpawner;
@@ -157,8 +158,10 @@ public class NeuralNetworkManager : MonoBehaviour
 	void SetJumpPredictions()
 	{
 		var obstacle = sObstacleSpawner.ClosestObstacleToPlayer();
-		var obstacleDist = Utilities.Map(obstacle.Right(),
+		var obstacleDistRight = Utilities.Map(obstacle.Right(),
 			mPlayerLeft, sObstacleSpawner.spawnPoint.x, 0, 1);
+		var obstacleDistLeft = Utilities.Map(obstacle.Left(),
+			mPlayerRight, sObstacleSpawner.spawnPoint.x, 0, 1);
 		var obstacleHeight = obstacle.CompareTag("TallObstacle") ? 1f : 0f; // is tall yes : no
 
 		// Get values for input data
@@ -170,10 +173,10 @@ public class NeuralNetworkManager : MonoBehaviour
 			var aiHeight = ai.HasJumped() ? 1f : 0f; // has jumped yes : no
 
 			var inputs = new InputData(
-				obstacleDist,
+				obstacleDistRight,
 				obstacleHeight,
 				aiHeight, 
-				1 - obstacleHeight);
+				obstacleDistLeft);
 
 			var outputs = NeuralNetwork.guess(ai.mIndex, inputs);
 			ai.mShouldJump = outputs.x > outputs.y;
@@ -182,6 +185,9 @@ public class NeuralNetworkManager : MonoBehaviour
 		}
 	}
 
+	// For testing purpose, doesn't assume that all player prefabs have the same
+	// box collider sizes. Finds the minimum x bound of the player prefab.
+	// note: also finds the max x bound for now
 	public float FindPlayerLeft()
 	{
 		float maxOffset = 0;
@@ -190,6 +196,7 @@ public class NeuralNetworkManager : MonoBehaviour
 			maxOffset = Mathf.Max(maxOffset,
 				player.GetComponent<BoxCollider>().bounds.extents.x);
 		}
+		mPlayerRight = mSpawnPosition.x + maxOffset;
 		return mSpawnPosition.x - maxOffset;
 	}
 }
