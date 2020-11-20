@@ -12,9 +12,10 @@ GameObject:
   - component: {fileID: 3324076}
   - component: {fileID: 2320756}
   - component: {fileID: 97770922784510042}
+  - component: {fileID: 718288349192157798}
   m_Layer: 0
   m_Name: Lava_Stone_11
-  m_TagString: Untagged
+  m_TagString: ShortObstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -95,3 +96,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameController: {fileID: 0}
+--- !u!65 &718288349192157798
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 149102}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.93877614, y: 0.534646, z: 1.1633749}
+  m_Center: {x: 0.0000015050173, y: 0.26732364, z: 0.079274595}

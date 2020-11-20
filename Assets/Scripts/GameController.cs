@@ -151,7 +151,7 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	// Increases speed every 10 points
+	// Increases speed every 100 points
 	private void UpSpeed()
 	{
 		if (allowSpeedUp && score % 10 == 0)

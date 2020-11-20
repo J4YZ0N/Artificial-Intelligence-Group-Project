@@ -5,7 +5,7 @@ using Util;
 
 public class ChangeTheme : MonoBehaviour
 {
-    // Variables to store level themes
+    // Variables to store and change level themes
     public LevelThemes plain;
     public LevelThemes desert;
     public LevelThemes cave;
@@ -14,12 +14,14 @@ public class ChangeTheme : MonoBehaviour
     public LevelThemes grave;
     public LevelThemes fort;
 
-    private LevelThemes currentTheme;
-    private int themeIndex = 0;
+    public LevelThemes currentTheme;
     private List<LevelThemes> themeList;
+    private int themeIndex = 0;
 
     private GameObject[] floor;
     private GameObject field;
+
+    ObstacleSpawner mObstacleSpawner;
 
     void Start()
     {
@@ -32,14 +34,18 @@ public class ChangeTheme : MonoBehaviour
         themeList.Add(grave);
         themeList.Add(fort);
 
+        currentTheme = plain;
+
+        mObstacleSpawner = GetComponent<ObstacleSpawner>();
+
         floor = GameObject.FindGameObjectsWithTag("Floor");
         field = GameObject.FindGameObjectWithTag("Field");
     }
 
-    // Update is called once per frame
+    // Changes background theme when called
     public void Change()
     {
-        if (themeIndex < 5)
+        if (themeIndex < 6)
         {
             themeIndex++;
             currentTheme = themeList[themeIndex];
@@ -49,6 +55,8 @@ public class ChangeTheme : MonoBehaviour
             themeIndex = 0;
             currentTheme = themeList[themeIndex];
         }
+
+        mObstacleSpawner.ChangeObstacles();
 
         RenderSettings.skybox = currentTheme.sky;
         field.GetComponent<MeshFilter>().sharedMesh = currentTheme.field.GetComponent<MeshFilter>().sharedMesh;

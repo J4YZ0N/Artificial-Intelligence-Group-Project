@@ -10,7 +10,7 @@ public class NeuralNetworkManager : MonoBehaviour
 	public Vector3 mSpawnPosition = new Vector3(-3.0f, 0, 0);
 
 	// amount of neural networks to create
-	const int mCount = 640;
+	const int mCount = 200;
 	int mActiveCount = mCount;
 
 	// list of AI players
@@ -45,15 +45,13 @@ public class NeuralNetworkManager : MonoBehaviour
 		{
 			var r = Random.Range(0, mPlayerPrefabs.Count);
 			var instance = Instantiate(
-				mPlayerPrefabs[r], mSpawnPosition, Quaternion.identity);
+				mPlayerPrefabs[r], mSpawnPosition, Quaternion.Euler(0,90,0));
 			instance.GetOrAddComponent<BoxCollider>();
 			instance.GetOrAddComponent<GlobalBounds>();
 
-			var ai = instance.GetOrAddComponent<AI>();
 			// give AI an index to a neural network
+			var ai = instance.GetOrAddComponent<AI>();
 			ai.mIndex = i;
-			//ai.sGameController = sGameController;
-
 			mAIs.Add(ai);
 		}
 
@@ -68,10 +66,9 @@ public class NeuralNetworkManager : MonoBehaviour
 		{
 			ai.gameObject.SetActive(true);
 			ai.Restart();
-			//mAIs.Add(ai);
 		}
+		
 		mActiveCount = mCount;
-
 		mStartTime = Time.time;
 		mCurrentBestFitness = -Mathf.Infinity;
 		mCurrentBestIndex = 0;
@@ -107,9 +104,9 @@ public class NeuralNetworkManager : MonoBehaviour
 			// load the saved AI with the best fitness from all
 			// generations into index 1 of the NeuralNetwork array
 			NeuralNetwork.load(1);
+			
 			// mutate all but the first 2 AI
 			NeuralNetwork.mutate(2, mCount - 1);
-			//NeuralNetwork.mutate(2, mCount - 1);
 
 			// switch to game over mode
 			sGameController.Initialize("Over");
@@ -122,8 +119,6 @@ public class NeuralNetworkManager : MonoBehaviour
 
 	void DeactivateDeadAIs()
 	{
-		//List<AI> toDeactivate = new List<AI>();
-
 		foreach (var ai in mAIs)
 		{
 			// ignore already deactivated AIs
@@ -159,42 +154,27 @@ public class NeuralNetworkManager : MonoBehaviour
 		}
 	}
 
-	//float prevObH = 0;
-	//float maxHeight = -1000;
 	void SetJumpPredictions()
 	{
 		var obstacle = sObstacleSpawner.ClosestObstacleToPlayer();
 		var obstacleDist = Utilities.Map(obstacle.Right(),
 			mPlayerLeft, sObstacleSpawner.spawnPoint.x, 0, 1);
-		var obstacleHeight = obstacle.transform.localScale.y > 1 ? 1f : 0f; // is tall yes : no
-		/*if (obstacleHeight != prevObH)
-		{
-			Debug.Log("OBSTACLE HEIGHT: " + obstacleHeight);
-			prevObH = obstacleHeight;
-		}*/
+		var obstacleHeight = obstacle.CompareTag("TallObstacle") ? 1f : 0f; // is tall yes : no
 
-		// todo: get values for input data
+		// Get values for input data
 		foreach (var ai in mAIs)
 		{
 			if (!ai.isActiveAndEnabled)
 				continue;
-			/*if (maxHeight < ai.mGlobalBounds.transform.position.y)
-			{
-				maxHeight = ai.mGlobalBounds.transform.position.y;
-				Debug.Log("MAX HEIGHT = " + maxHeight);
-			}*/
+
 			var aiHeight = ai.HasJumped() ? 1f : 0f; // has jumped yes : no
-			//var aiHeight = ai.transform.position.y / 3;
+
 			var inputs = new InputData(
 				obstacleDist,
 				obstacleHeight,
 				aiHeight, 
 				0);
-			/*if (obstacleHeight < 1 && aiHeight > 0.5f)
-			{
-				NeuralNetwork.train(ai.mIndex, inputs, new OutputData(0.5f, 0));
-				Debug.Log("retrained");
-			}*/
+
 			var outputs = NeuralNetwork.guess(ai.mIndex, inputs);
 			ai.mShouldJump = outputs.x > outputs.y;
 			ai.mShouldDoubleJump = outputs.y > 0.6f;
@@ -211,34 +191,4 @@ public class NeuralNetworkManager : MonoBehaviour
 		}
 		return mSpawnPosition.x - maxOffset;
 	}
-
-	/*void PredictionTest()
-	{
-		NeuralNetwork.addNetworks(1);
-
-		for (int j = 0; j < 100; ++j)
-		{
-			NeuralNetwork.train(0, new InputData(1.0f, 1.0f, 0.0f, 0.0f), new OutputData(1.0f, 0.0f));
-			NeuralNetwork.train(0, new InputData(0.0f, 1.0f, 1.0f, 0.0f), new OutputData(1.0f, 0.0f));
-			NeuralNetwork.train(0, new InputData(1.0f, 0.0f, 1.0f, 0.0f), new OutputData(1.0f, 0.0f));
-			NeuralNetwork.train(0, new InputData(1.0f, 1.0f, 1.0f, 0.0f), new OutputData(1.0f, 0.0f));
-			NeuralNetwork.train(0, new InputData(1.0f, 0.0f, 0.0f, 0.0f), new OutputData(0.0f, 0.0f));
-			NeuralNetwork.train(0, new InputData(0.0f, 1.0f, 0.0f, 0.0f), new OutputData(0.0f, 0.0f));
-			NeuralNetwork.train(0, new InputData(0.0f, 0.0f, 1.0f, 0.0f), new OutputData(0.0f, 0.0f));
-			NeuralNetwork.train(0, new InputData(0.0f, 0.0f, 0.0f, 0.0f), new OutputData(0.0f, 0.0f));
-		}
-
-		var guess = NeuralNetwork.guess(0,
-			new InputData(1.0f, 1.0f, 0.0f, 0.0f));
-		Debug.Log(guess.x);
-		Debug.Log(guess.y);
-		guess = NeuralNetwork.guess(0,
-			new InputData(0.0f, 1.0f, 1.0f, 0.0f));
-		Debug.Log(guess.x);
-		Debug.Log(guess.y);
-		guess = NeuralNetwork.guess(0,
-			new InputData(1.0f, 0.0f, 1.0f, 0.0f));
-		Debug.Log(guess.x);
-		Debug.Log(guess.y);
-	}*/
 }

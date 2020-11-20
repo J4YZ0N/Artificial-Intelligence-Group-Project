@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -1811095646135315980}
   m_Layer: 0
   m_Name: Plain_Stone_06
-  m_TagString: Obstacle
+  m_TagString: ShortObstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -108,6 +108,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4f2b8d91a45a9b46931e7067e02d6db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resetPosition: 6
-  boundary: -6
   gameController: {fileID: 0}

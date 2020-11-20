@@ -12,9 +12,10 @@ GameObject:
   - component: {fileID: 3364054}
   - component: {fileID: 2321408}
   - component: {fileID: -3504290103885374376}
+  - component: {fileID: -3747315265782374272}
   m_Layer: 0
   m_Name: Cave_Stone_11
-  m_TagString: Untagged
+  m_TagString: ShortObstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -95,3 +96,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameController: {fileID: 0}
+--- !u!65 &-3747315265782374272
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 191702}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.9731561, y: 0.9419313, z: 0.847154}
+  m_Center: {x: -0.00000029802322, y: 0.4709662, z: 0.00000090897083}

@@ -12,9 +12,10 @@ GameObject:
   - component: {fileID: 3354334}
   - component: {fileID: 2399506}
   - component: {fileID: -5009411944498859175}
+  - component: {fileID: -362997781534277911}
   m_Layer: 0
   m_Name: Ice_Stone_11
-  m_TagString: Untagged
+  m_TagString: ShortObstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -95,3 +96,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameController: {fileID: 0}
+--- !u!65 &-362997781534277911
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 114396}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.9681201, y: 0.5346459, z: 1.1633487}
+  m_Center: {x: -0.0000005811453, y: 0.2672879, z: -0.0000016987324}

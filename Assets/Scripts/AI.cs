@@ -7,11 +7,6 @@ public class AI : MonoBehaviour
 	// index into the plugin's array of neural networks
 	[System.NonSerialized]
 	public int mIndex;
-	// shared game controller to change game mode
-	// todo: should be in neural network manager instead
-	//		to restart only when all AI have died
-	/*[System.NonSerialized]
-	public GameController sGameController;*/
 
 	int mJumpCount = 2;
 
@@ -25,6 +20,7 @@ public class AI : MonoBehaviour
 
 	[System.NonSerialized]
 	public GlobalBounds mGlobalBounds;
+	Animator mAnimator;
 	Rigidbody mRigidBody;
 
 	[System.NonSerialized]
@@ -32,18 +28,10 @@ public class AI : MonoBehaviour
 
 	Vector3 mStartPosition;
 
-	//ObstacleSpawner sObstacleSpawner;
-	
-	// keep a record of actions in case they lead to AI's
-	// death. hopefully can be used to retrain AI.
-	/*const int mRecordCount = 4; // must be a power of 2
-	[System.NonSerialized]
-	public bool[] mActionRecord = new bool[mRecordCount];
-	int mNextRecordIndex = 0;*/
-
 	void Start()
 	{
 		mStartPosition = transform.position;
+		mAnimator = GetComponent<Animator>();
 		mRigidBody = GetComponent<Rigidbody>();
 		mGlobalBounds = GetComponent<GlobalBounds>();
 	}
@@ -64,16 +52,7 @@ public class AI : MonoBehaviour
 
 	void Update()
 	{
-		// todo: grab prediction? or do that in nn manager?
-		//	probably should do it in nn manager since inputs
-		//	should be the same for every AI (or should they?)
-
 		Jump();
-
-		// add result to the record
-		/*mActionRecord[mNextRecordIndex] = mShouldJump;
-		// wraps index if mRecordCount is a power of 2
-		mNextRecordIndex = (mNextRecordIndex + 1) % mRecordCount;*/
 	}
 
 	void Jump()
@@ -82,44 +61,32 @@ public class AI : MonoBehaviour
 		var doubleJump = mJumpCount == 1 && mShouldDoubleJump;
 		if (jump && mRigidBody.velocity.y <= 0)
 		{
+			mAnimator.SetBool("Jumping", true);
 			mRigidBody.velocity = new Vector3(0, mJumpPower, 0);
 			++mJumpCount;
 		}
-	}
-
-	void Duck()
-	{
-		// if grounded
-		if (mJumpCount == 0)
+		if (doubleJump && mRigidBody.velocity.y <= 0)
 		{
-			transform.localScale = new Vector3(
-				transform.localScale.x,
-				transform.localScale.y / 2,
-				transform.localScale.z);
-			transform.position = new Vector3(
-				transform.position.x,
-				transform.position.y / 2,
-				transform.position.z);
+			mAnimator.SetBool("Double Jumping", true);
 		}
 	}
 
 	private void OnCollisionEnter(Collision col)
 	{
 		if (col.gameObject.CompareTag("Ground"))
+		{
 			mJumpCount = 0;
+			mAnimator.SetBool("Jumping", false);
+			mAnimator.SetBool("Double Jumping", false);
+		}
 	}
-
-	/*private void OnCollisionExit(Collision col)
-	{
-		if (col.gameObject.CompareTag("Ground"))
-			mIsGrounded = false;
-	}*/
 
 	// Detects if player hits obstacle
 	void OnTriggerEnter(Collider other)
 	{
-		if (other.gameObject.CompareTag("Obstacle"))
+		if (other.gameObject.CompareTag("ShortObstacle") || other.gameObject.CompareTag("TallObstacle"))
 			mTimeOfDeath = Time.time;
+			mAnimator.SetBool("Death", true);
 	}
 
 	public Vector2 BottomLeft()

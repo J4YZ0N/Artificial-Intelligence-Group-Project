@@ -12,9 +12,6 @@ namespace Util
         public GameObject obstacle2;
         public GameObject obstacle3;
         public GameObject field;
-        public GameObject decoration1;
-        public GameObject decoration2;
-        public GameObject decoration3;
         public Material sky;
     }
 }
