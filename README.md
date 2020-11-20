@@ -3,7 +3,31 @@
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Neural Network Plugin](#plugin)
+	- [Utilities](#utilities)
+		- [Traits](#traits)
+		- [Random](#random)
+	- [Mathematics](#mathematics)
+		- [Matrix](#matrix)
+		- [Related Functions](#math_related_functions)
+	- [Machine Learning](#machine_learning)
+		- [Neural Network](#neural_network)
+		- [Related Functions](#learning_related_functions)
+		- [Wrapper](#wrapper)
 3. [Unity Components](#unity_components)
+	- [Artificial Intelligence](#artificial_intelligence)
+		- [Neural Network](#unity_neural_network)
+		- [AI](#ai)
+		- [Neural Network Manager](#neural_network_manager)
+	- [Gameplay](#gameplay)
+		- [Change Theme](#change_theme)
+		- [Game Controller](#game_controller)
+		- [Global Bounds](#global_bounds)
+		- [Ground Controller](#ground_controller)
+		- [Highlight](#highlight)
+		- [Level Themes](#level_themes)
+		- [Obstacle Controller](#obstacle_controller)
+		- [Obstacle Spawner](#obstacle_spawner)
+		- [Unity Engine Extensiont](#unity_engine_extensions)
 
 ## Introduction <a name="introduction"></a>
 
@@ -17,15 +41,15 @@ The neural network implementation and storage are written in C++ and imported in
 
 The Neural Network Plugin consists of four parts: utilities, a custom matrix class, a neural network class, and an API wrapper to a neural network container.
 
-### Utilities
+### Utilities <a name="utilities"></a>
 
-#### Traits
+#### Traits <a name="traits"></a>
 
 Defined in "traits.h"
 
 Some modern C++ random distribution functions take integers as input and others take real numbers. Providing the incorrect input results in undefined behaviour, and so RequireReal and RequireInteger are used to prevent compilation of random distribution functions with incorrect input being implicitly cast, and also to select appropriate function overloads.
 
-#### Random
+#### Random <a name="random"></a>
 
 Defined in "random.h"
 
@@ -55,9 +79,9 @@ The problem is that random engines take up a lot of memory, and so it's undesira
 | random::get(T hi) | returns a value of type T between 0 (inclusive) and hi (inclusive)|
 | random::gaussian(T mean, T stddev) | returns a value from a normal distribution with a higher chance of values being closer to the mean give a lower stddev (standard deviation) |
 
-### Mathematics
+### Mathematics <a name="mathematics"></a>
 
-#### Matrix
+#### Matrix <a name="matrix"></a>
 
 Defined in "matrix.h".
 
@@ -69,7 +93,7 @@ Defined in "matrix.h".
 | mat<Rows, Cols>.setTranspose() | replaces matrix data with its transpose (only implemented for square matrices) |
 | mat<Rows, Cols>.getTranspose() | returns a new matrix representing this one's transpose |
 
-##### Related Functions
+##### Related Functions <a name="math_related_functions"></a>
 
 | Function | Description |
 | :-----: | :---------: |
@@ -77,9 +101,9 @@ Defined in "matrix.h".
 | asColVec(std::array<float, N> const& arr) | creates a column vector (i.e. a mat<N, 1>) from a std::array<float, N> |
 | asRowVec(std::array<float, N> const& arr) | creates a row vector (i.e. a mat<1, N>) from a std::array<float, N> |
 
-### Machine Learning
+### Machine Learning <a name="machine_learning"></a>
 
-#### Neural Network
+#### Neural Network <a name="neural_network"></a>
 
 Defined in "neural_network.h"
 
@@ -94,7 +118,7 @@ Defined in "neural_network.h"
 | save(const char* filename) | Saves the NeuralNetwork as a binary file to "filename". Default filename is "nnd.bin". |
 | load(const char* filename) | Copies over this neural network with a neural network stored in the binary file, "filename". Default filename is "nnd.bin". |
 
-##### Related Functions
+##### Related Functions <a name="ml_related_functions"></a>
 
 | Function | Description |
 | :-----: | :---------: |
@@ -105,7 +129,7 @@ Defined in "neural_network.h"
 | remove_activation(mat<Rows, Cols>& m) | Applies derivate of activation function to each element, x, in m. |
 | apply_mutation(mat<Rows, Cols>& m, float chance) | Applies mutate(x, chance) to every element, x, of m. |
 
-#### Wrapper
+#### Wrapper <a name="wrapper"></a>
 
 Defined in "wrapper.h"
 
@@ -123,9 +147,11 @@ API wrapper for interfacing with a container of Neural Networks. Each NeuralNetw
 
 ## Unity Components <a name="unity_components"></a>
 
-### Machine Learning
+Unity Components are broken into Artificial Intelligence scripts and Gameplay scripts. Artificial Inetlligence handles all the calculations related to the AI component of the program, while Gameplay handles the actual playable game portion.
 
-#### NeuralNetwork.cs
+### Artificial Intelligence <a name="artificial_intelligence"></a>
+
+#### Neural Network <a name="unity_neural_network"></a>
 
 Interface into the neural network plugin. See [Neural Network Plugin](#plugin) for more details.
 
@@ -139,9 +165,9 @@ Interface into the neural network plugin. See [Neural Network Plugin](#plugin) f
 | save(int index) | Saves the specific neural network at 'index'. |
 | load(int index) | Replaces the neural network at 'index' with saved data. |
 
-#### AI.cs
+#### AI <a name="ai"></a>
 
-AI component managed by the NeuralNetworkManager and used for controlling a player object. It stores an index associated with one of the neural networks. 
+AI component managed by the Neural Network Manager and used for controlling a player object. It stores an index associated with one of the neural networks. 
 
 | Method | Description |
 | :-----: | :---------: |
@@ -151,9 +177,9 @@ AI component managed by the NeuralNetworkManager and used for controlling a play
 | Update() | Calls Jump() every frame. |
 | Jump() | The AI player jumps if 3 conditions are met: it hasn't double jumped, it doesn't already have an upward velocity, and if mShouldJump, updated by NeuralNetworkManager by calling the guess function of the AI's associated neural network, is true |
 
-#### NeuralNetworkManager.cs
+#### Neural Network Manager <a name="neural_network_manager"></a>
 
-Manager responsible for calling methods from NeuralNetwork and also for AI instances. It creates an equal amount of neural networks from the plugin's side and gives the index of each to an associated AI instance. The AI is then used to 
+Manager responsible for calling methods from [Neural Network](#unity_neural_network) and also for AI instances. It creates an equal amount of neural networks from the plugin's side and gives the index of each to an associated AI instance.
 
 | Method | Description |
 | :-----: | :---------: |
@@ -167,14 +193,20 @@ Manager responsible for calling methods from NeuralNetwork and also for AI insta
 | OnTriggerEnter(Collider other) | If other has an Obstacle tag, the AI's TimeOfDeath will be set, which will be used by NeuralNetworkManager to both disable this GameObject and also  |
 | BottomLeft() | Returns the position of the object's bottom left corner.  |
 
-#### ChangeTheme.cs
+### Gameplay <a name="gameplay"></a>
+
+#### Change Theme <a name="change_theme"></a>
+
+Stores prefabs of game objects with variying visual themes and cycles between them when called.
 
 | Method | Description |
 | :-----: | :---------: |
 | Start() | Initiates list of themes. Sets current theme to 'plain'. |
 | Change() | Periodically changes background theme. Updates skybox accordingly. |
 
-#### GameController.cs
+#### Game Controller <a name="game_controller"></a>
+
+Handles the running of the game UI, game intialization, and score calculation.
 
 | Method | Description |
 | :-----: | :---------: |
@@ -186,46 +218,46 @@ Manager responsible for calling methods from NeuralNetwork and also for AI insta
 | UpSpeed() | Increases the speed by 1.0 every 100 points. |
 | AddScore() | Adds 1 point to the score. |
 
-#### GlobalBounds
+#### Global Bounds <a name="global_bounds"></a>
+
+Used on the player and obstacles in order to check their position compared to other game objects.
 
 | Method | Description |
 | :-----: | :---------: |
-| Start() | Gets the object's box collider |
+| Start() | Gets the object's box collider. |
+| Left() | Returns the x position of the object's left side. |
+| Right() | Returns the x position of the object's right side. |
+| Top() | Returns the y position of the object's top side. |
+| Bottom() | Returns the y position of the object's bottom side. |
+| BottomLeft() | Returns the position of the object's bottom left corner. |
+| BottomRight() | Returns the position of the object's bottom right corner. |
+| TopRight() | Returns the position of the object's top right corner. |
+| TopLeft() | Returns the position of the object's top left corner. |
 
-#### GlobalBounds.cs
+#### Ground Controller <a name="ground_controller"></a>
 
-Used on the player and obstacles in order to 
-
-| Method 					| Description |
-| :-------------:	| :---------: |
-| Start() 				| Gets the object's box collider |
-| Left() 					| Returns the x position of the object's left side |
-| Right() 				| Returns the x position of the object's right side |
-| Top() 					| Returns the y position of the object's top side |
-| Bottom() 				| Returns the y position of the object's bottom side |
-| BottomLeft()		| Returns the position of the object's bottom left corner |
-| BottomRight() 	| Returns the position of the object's bottom right corner |
-| TopRight() 			| Returns the position of the object's top right corner |
-| TopLeft() 			| Returns the position of the object's top left corner |
-
-#### GroundController.cs
+Moves ground cubes left across screen and resets them to the right when they move off the left side. Used to simulate the effect of the character running.
 
 | Method | Description |
 | :-----: | :---------: |
 | Start() | Initializes the game controller. |
 | Update() | Updates the position of ground objects. |
 
-#### Highlight.cs
+#### Highlight <a name="highlight"></a>
+
+Highlights object closest to the player, used for bug testing.
 
 | Method | Description |
 | :-----: | :---------: |
 | ChangeHighlightTarget(GameObject instance) | Adds a material that highlights a game object. |
 
-#### LevelThemes.cs
+#### Level Themes <a name="level_themes"></a>
 
-Defines GameObjects relating to theme. Objects include ground, 3 obstacles, and the field.
+Class defining GameObjects relating to theme. Objects include the ground, 3 obstacles, and the field.
 
-#### ObstacleController.cs
+#### Obstacle Controller <a name="obstacle_controller"></a>
+
+Moves Obstacle left across the screen, also gets the top middle of the obstacle for use in [Neural Network](#unity_neural_netork)
 
 | Method | Description |
 | :-----: | :---------: |
@@ -233,7 +265,9 @@ Defines GameObjects relating to theme. Objects include ground, 3 obstacles, and 
 | Update() | Moves obstacles left across the screen. |
 | getTopMiddle() | Returns the top middle position value. It is used for the neural network. |
 
-#### ObstacleSpawner.cs
+#### Obstacle Spawner <a name="obstacle_spawner"></a>
+
+Grabs obstacle prefabs from [Change Theme](#change_theme) and spawns them at the right side of the screen. If the object is short it spawns a second obstacle above it on the ceiling.
 
 | Method | Description |
 | :-----: | :---------: |
@@ -246,7 +280,9 @@ Defines GameObjects relating to theme. Objects include ground, 3 obstacles, and 
 | DestroyAllObstacles() | Destroys all obstacles and clears them from the list of obstacles and the list of upside down obstacles. Sets the next spawn time to the start spawn time. |
 | DoSpawnRandom() | Determines the next spawn time using a randomized spawn interval. Instantiates obstacles with an obstacle controller, box collider, and global bounds. Adds the obstacle to the list of obstacles. |
 
-#### UnityEngineExtensions.cs
+#### Unity Engine Extensions <a name="unity_engine_extensions"></a>
+
+Adds a function for use in Unity scripts that searches for a component and adds one if one is not found.
 
 | Method | Description |
 | :-----: | :---------: |
