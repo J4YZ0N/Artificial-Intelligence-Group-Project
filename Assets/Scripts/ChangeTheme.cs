@@ -58,7 +58,7 @@ public class ChangeTheme : MonoBehaviour
 
         mObstacleSpawner.ChangeObstacles();
 
-        RenderSettings.skybox = currentTheme.sky;
+        //RenderSettings.skybox = currentTheme.sky;
         field.GetComponent<MeshFilter>().sharedMesh = currentTheme.field.GetComponent<MeshFilter>().sharedMesh;
 
         for (int i = 0; i < floor.Length; i++)

@@ -14,7 +14,8 @@ public class ObstacleSpawner : MonoBehaviour
 
 	Vector3 mSpawnPoint;
 
-	public Vector3 spawnPoint {
+	public Vector3 spawnPoint
+	{
 		get { return mSpawnPoint; }
 	}
 
@@ -26,6 +27,7 @@ public class ObstacleSpawner : MonoBehaviour
 	GameController mGameController;
 
 	ChangeTheme mThemeChanger;
+
 
 	// closest obstacle to player's right
 	GlobalBounds mClosestObstacle;
@@ -49,6 +51,7 @@ public class ObstacleSpawner : MonoBehaviour
 
 		DoSpawnRandom();
 		mClosestObstacle = mObstacles[0];
+		Highlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
 	}
 
 	void Update()
@@ -78,7 +81,7 @@ public class ObstacleSpawner : MonoBehaviour
 	}
 
 	public void ChangeObstacles()
-    {
+	{
 		mObstaclePrefabs.Clear();
 		mObstaclePrefabs.Add(mThemeChanger.currentTheme.obstacle1);
 		mObstaclePrefabs.Add(mThemeChanger.currentTheme.obstacle2);
@@ -91,6 +94,7 @@ public class ObstacleSpawner : MonoBehaviour
 		if (mClosestObstacle == null)
 		{
 			mClosestObstacle = mObstacles[0];
+			Highlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
 		}
 
 		var x = mClosestObstacle.Right();
@@ -106,6 +110,7 @@ public class ObstacleSpawner : MonoBehaviour
 				if (obstacle.Right() > mPlayerMinX && dist < minDist)
 				{
 					mClosestObstacle = obstacle;
+					Highlight.ChangeHighlightTarget(mClosestObstacle.gameObject);
 					minDist = dist;
 				}
 			}
@@ -134,34 +139,51 @@ public class ObstacleSpawner : MonoBehaviour
 
 	void DoSpawnRandom()
 	{
+		var interval = Random.Range(mMinSpawnInterval, mMaxSpawnInterval);
 		// set the next spawn time
-		mNextSpawnTime = Time.time + Random.Range(mMinSpawnInterval, mMaxSpawnInterval);
+		mNextSpawnTime = Time.time + interval;
 
 		// select a random prefab, ...
 		var i = Random.Range(0, mObstaclePrefabs.Count);
 
-			// ... instantiate it at the spawn point ...
-			var instance = Instantiate(mObstaclePrefabs[i], mSpawnPoint, Quaternion.identity);
-			// ... with an obstacle controller ...
-			//instance.tag = "Obstacle";
-			var oc = instance.GetOrAddComponent<ObstacleController>();
-			oc.gameController = mGameController;
-			// ... a collision box, ...
-			var bc = instance.GetOrAddComponent<BoxCollider>();
-			// ... that's a trigger, ...
-			bc.isTrigger = true;
-			// ... and GlobalBounds, ...
-			var gb = instance.GetOrAddComponent<GlobalBounds>();
-			// ... and finally add its GlobalBound to our list
-			mObstacles.Add(gb);
+		// if not enough space to jump two tall obstacles in a row
+		if (interval < (mMinSpawnInterval * 1.1f) && mObstaclePrefabs[i].CompareTag("ShortObstacle"))
+		{
+			for (int j = 0; j < mObstaclePrefabs.Count; ++j)
+			{
+				if (!mObstaclePrefabs[i].CompareTag("ShortObstacle"))
+				{
+					i = j;
+					break;
+				}
+			}
+		}
+
+		// ... instantiate it at the spawn point ...
+		var instance = Instantiate(mObstaclePrefabs[i], mSpawnPoint, Quaternion.identity);
+		// ... with an obstacle controller ...
+		//instance.tag = "Obstacle";
+		var oc = instance.GetOrAddComponent<ObstacleController>();
+		oc.gameController = mGameController;
+		// ... a collision box, ...
+		var bc = instance.GetOrAddComponent<BoxCollider>();
+		// ... that's a trigger, ...
+		bc.isTrigger = true;
+		// ... and GlobalBounds, ...
+		var gb = instance.GetOrAddComponent<GlobalBounds>();
+		// ... and finally add its GlobalBound to our list
+		mObstacles.Add(gb);
 
 		if (instance.CompareTag("ShortObstacle"))
 		{
-			// ... instantiate it at the spawn point ...
-			var instance2 = Instantiate(mObstaclePrefabs[1], mSpawnPoint, Quaternion.identity);
-			if (instance2.CompareTag("ShortObstacle"))
+			foreach (var p in mObstaclePrefabs)
 			{
-				instance2.transform.position = new Vector3(instance2.transform.position.x, 3f, instance2.transform.position.z);
+				if (p.CompareTag("ShortObstacle"))
+					continue;
+
+				// ... instantiate it at the spawn point ...
+				var instance2 = Instantiate(p, mSpawnPoint, Quaternion.identity);
+				instance2.transform.position = new Vector3(instance2.transform.position.x, 3.5f, instance2.transform.position.z);
 				instance2.transform.eulerAngles += new Vector3(0, 0, 180);
 				// ... with an obstacle controller ...
 				//instance2.tag = "Obstacle";
@@ -175,11 +197,9 @@ public class ObstacleSpawner : MonoBehaviour
 				var gb2 = instance2.GetOrAddComponent<GlobalBounds>();
 				// ... and finally add its GlobalBound to our list
 				mUpsidedownObstacles.Add(gb2);
+
+				break;
 			}
-            else
-            {
-				Destroy(instance2);
-            }
 		}
 	}
 }

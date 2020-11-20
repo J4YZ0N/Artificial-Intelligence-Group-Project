@@ -157,7 +157,6 @@ public class GameController : MonoBehaviour
 		if (allowSpeedUp && score % 10 == 0)
 		{
 			Speed += 1.0f;
-			themeChanger.Change();
 		}
 	}
 
@@ -165,5 +164,7 @@ public class GameController : MonoBehaviour
 	private void AddScore()
 	{
 		Score += 1;
+		if (Score % 10 == 0)
+			themeChanger.Change();
 	}
 }
